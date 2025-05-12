@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: linear-gradient(
+    to right,
+    #4ade80 33.33%, /* Green */
+    #fde047 33.33% 66.66%, /* Yellow */
+    #ef4444 66.66% /* Red */
+  );
+  min-height: 100vh;
+}
+
+/* Semi-transparent overlay to improve readability */
+#root {
+  min-height: 100vh;
+  background-color: rgba(255, 255, 255, 0.95);
+}
