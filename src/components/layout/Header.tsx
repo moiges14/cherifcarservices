@@ -54,23 +54,27 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+    // Close profile menu when opening mobile menu
+    if (isProfileMenuOpen) setIsProfileMenuOpen(false);
   };
 
   const handleNavigation = (pageId: string) => {
     setActivePage(pageId);
     setIsMenuOpen(false);
+    setIsProfileMenuOpen(false);
   };
 
   const handleSignOut = async () => {
     await signOut();
     setIsProfileMenuOpen(false);
+    setIsMenuOpen(false);
   };
 
   const displayName = profileData?.name || user?.email?.split('@')[0] || 'User';
   const defaultProfilePicture = "https://upload.wikimedia.org/wikipedia/commons/f/fd/Flag_of_Senegal.svg";
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-10">
+    <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
@@ -121,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
             </div>
           </nav>
 
-          {/* User Profile */}
+          {/* Desktop User Profile */}
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="relative">
@@ -166,81 +170,131 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
 
           {/* Mobile Menu Button */}
           <div className="flex items-center md:hidden">
-            {user ? (
-              <button
-                onClick={toggleMenu}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none"
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            ) : (
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={onAuthClick}
-              >
-                Connexion
-              </Button>
-            )}
+            <button
+              onClick={toggleMenu}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none"
+              aria-expanded={isMenuOpen}
+            >
+              <span className="sr-only">
+                {isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+              </span>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMenuOpen && user && (
-        <div className="md:hidden">
-          <div className="pt-2 pb-3 space-y-1 px-4 sm:px-6 lg:px-8">
-            {[...menuItems, ...userMenuItems].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavigation(item.id)}
-                className={`
-                  flex items-center w-full px-3 py-2 rounded-md text-base font-medium
-                  ${activePage === item.id
-                    ? 'bg-emerald-50 text-emerald-600'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                  }
-                `}
-              >
-                <span className="mr-3">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-          </div>
-          
-          {/* Mobile User Profile */}
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="flex items-center px-4 sm:px-6 lg:px-8">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 rounded-full overflow-hidden">
+      <div
+        className={`
+          fixed inset-0 z-40 transform transition-transform duration-300 ease-in-out md:hidden
+          ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        {/* Overlay */}
+        <div
+          className={`
+            absolute inset-0 bg-black bg-opacity-50 transition-opacity duration-300
+            ${isMenuOpen ? 'opacity-100' : 'opacity-0'}
+          `}
+          onClick={toggleMenu}
+        />
+
+        {/* Menu Content */}
+        <div className="relative bg-white h-full w-4/5 max-w-sm shadow-xl flex flex-col">
+          {/* Header */}
+          <div className="px-4 py-6 bg-emerald-600">
+            {user ? (
+              <div className="flex items-center">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-white">
                   <img
                     src={profileData?.profile_picture || defaultProfilePicture}
                     alt={displayName}
                     className="w-full h-full object-cover"
                   />
                 </div>
-              </div>
-              <div className="ml-3">
-                <div className="text-base font-medium text-gray-800">
-                  {displayName}
+                <div className="ml-3">
+                  <div className="text-lg font-semibold text-white">
+                    {displayName}
+                  </div>
+                  <div className="text-sm text-emerald-100">
+                    {user.email}
+                  </div>
                 </div>
-                <div className="text-sm font-medium text-gray-500">
-                  {user.email}
-                </div>
               </div>
-            </div>
-            <div className="mt-3 px-2">
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onAuthClick();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full text-white border-white hover:bg-emerald-700"
+              >
+                Connexion
+              </Button>
+            )}
+          </div>
+
+          {/* Navigation Items */}
+          <div className="flex-1 overflow-y-auto">
+            <nav className="px-2 py-4">
+              {menuItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleNavigation(item.id)}
+                  className={`
+                    flex items-center w-full px-4 py-3 text-base font-medium rounded-md mb-1
+                    ${activePage === item.id
+                      ? 'bg-emerald-50 text-emerald-600'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                    }
+                  `}
+                >
+                  <span className="mr-3">{item.icon}</span>
+                  {item.label}
+                </button>
+              ))}
+
+              {user && (
+                <>
+                  <div className="border-t border-gray-200 my-4" />
+                  {userMenuItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => handleNavigation(item.id)}
+                      className={`
+                        flex items-center w-full px-4 py-3 text-base font-medium rounded-md mb-1
+                        ${activePage === item.id
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                        }
+                      `}
+                    >
+                      <span className="mr-3">{item.icon}</span>
+                      {item.label}
+                    </button>
+                  ))}
+                </>
+              )}
+            </nav>
+          </div>
+
+          {/* Footer */}
+          {user && (
+            <div className="border-t border-gray-200 p-4">
               <button
                 onClick={handleSignOut}
-                className="flex items-center w-full px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-800"
+                className="flex items-center w-full px-4 py-3 text-base font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-800 rounded-md"
               >
                 <LogOut size={18} className="mr-3" />
                 Déconnexion
               </button>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </header>
   );
 };
