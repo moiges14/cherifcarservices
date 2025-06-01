@@ -43,7 +43,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
       version: 'weekly',
       libraries: ['places'],
       region: 'FR',
-      language: 'fr'
+      language: 'fr',
+      // Add development URLs to allowed referrers
+      authReferrerPolicy: 'origin'
     });
 
     const loadMap = async () => {
@@ -137,7 +139,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
             }
           });
 
-          // Bias the SearchBox results towards current map's viewport
           mapInstance.addListener('bounds_changed', () => {
             searchBox.setBounds(mapInstance.getBounds() as google.maps.LatLngBounds);
           });

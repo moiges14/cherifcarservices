@@ -12,12 +12,19 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true
+  },
+  global: {
+    fetch: fetch.bind(globalThis)
   }
 });
 
-// Test the connection and log success/failure
+// Test the connection and log detailed errors
 supabase.auth.getSession().then(() => {
   console.log('Supabase connection successful');
 }).catch(error => {
-  console.error('Supabase connection error:', error);
+  console.error('Supabase connection error:', {
+    message: error.message,
+    details: error.details,
+    hint: error.hint
+  });
 });
