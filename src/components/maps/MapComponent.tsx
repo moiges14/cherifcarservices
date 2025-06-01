@@ -42,7 +42,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
       apiKey,
       version: 'weekly',
       libraries: ['places'],
-      authReferrerPolicy: 'origin',
       region: 'FR',
       language: 'fr'
     });
@@ -115,7 +114,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
         }
 
         if (showSearchBox && searchBoxRef.current) {
-          const searchBox = new google.maps.places.SearchBox(searchBoxRef.current);
+          const searchBox = new google.maps.places.SearchBox(searchBoxRef.current, {
+            bounds: franceBounds
+          });
+          
           searchBox.addListener('places_changed', () => {
             const places = searchBox.getPlaces();
             if (!places || places.length === 0) return;
@@ -134,6 +136,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
               });
             }
           });
+
+          // Bias the SearchBox results towards current map's viewport
+          mapInstance.addListener('bounds_changed', () => {
+            searchBox.setBounds(mapInstance.getBounds() as google.maps.LatLngBounds);
+          });
         }
 
         if (onLocationSelect) {
@@ -142,7 +149,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             const geocoder = new google.maps.Geocoder();
             try {
-              const response = await geocoder.geocode({ location: e.latLng });
+              const response = await geocoder.geocode({
+                location: e.latLng,
+                region: 'FR'
+              });
+              
               if (response.results[0]) {
                 onLocationSelect({
                   latitude: e.latLng.lat(),
@@ -257,7 +268,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
         {
           origin,
           destination,
-          travelMode: google.maps.TravelMode.DRIVING
+          travelMode: google.maps.TravelMode.DRIVING,
+          region: 'FR'
         },
         (result, status) => {
           if (status === google.maps.DirectionsStatus.OK && result) {
