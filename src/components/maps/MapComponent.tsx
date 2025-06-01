@@ -45,7 +45,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       region: 'FR',
       language: 'fr',
       // Update referrerPolicy for WebContainer environment
-      authReferrerPolicy: 'origin-when-cross-origin'
+      authReferrerPolicy: 'no-referrer-when-downgrade'
     });
 
     const loadMap = async () => {
