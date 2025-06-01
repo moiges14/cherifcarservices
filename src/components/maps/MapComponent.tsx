@@ -44,8 +44,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       libraries: ['places'],
       region: 'FR',
       language: 'fr',
-      // Add development URLs to allowed referrers
-      authReferrerPolicy: 'origin'
+      // Remove authReferrerPolicy to use default settings
     });
 
     const loadMap = async () => {
