@@ -15,7 +15,9 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   }
 });
 
-// Test the connection
-supabase.from('reviews').select('count', { count: 'exact', head: true })
-  .then(() => console.log('Supabase connection successful'))
-  .catch(error => console.error('Supabase connection error:', error));
+// Test the connection and log success/failure
+supabase.auth.getSession().then(() => {
+  console.log('Supabase connection successful');
+}).catch(error => {
+  console.error('Supabase connection error:', error);
+});
