@@ -20,36 +20,48 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     }
   },
-  // Add retryOnError configuration
   db: {
     schema: 'public'
   }
 });
 
-// Enhanced connection test with detailed error logging
-supabase.auth.getSession().then(async () => {
+// Enhanced error handling for connection test
+const testConnection = async () => {
   try {
-    // Test a simple query to verify database access
     const { data, error } = await supabase
       .from('reviews')
       .select('count')
       .limit(1)
       .single();
       
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase database access error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      return;
+    }
     console.log('Supabase connection and database access verified');
   } catch (error) {
-    console.error('Supabase database access error:', {
-      message: error.message,
-      details: error.details,
-      hint: error.hint
-    });
+    if (error instanceof Error) {
+      console.error('Supabase connection error:', {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+    } else {
+      console.error('Unknown Supabase error:', error);
+    }
   }
-}).catch(error => {
-  console.error('Supabase connection error:', {
+};
+
+// Initialize connection test
+supabase.auth.getSession().then(testConnection).catch(error => {
+  console.error('Supabase auth error:', {
     message: error.message,
-    details: error.details,
-    hint: error.hint,
-    status: error.status
+    name: error.name,
+    stack: error.stack
   });
 });
