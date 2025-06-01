@@ -8,10 +8,10 @@ const AboutUs: React.FC = () => {
       {/* Hero Section */}
       <div className="text-center mb-16">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Bienvenue chez Chérif Car Services
+          Bienvenue chez CMH Car Services
         </h1>
         <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Chérif Car Service réinvente la mobilité en alliant élégance, sécurité et technologie de pointe. 
+          CMH Car Service réinvente la mobilité en alliant élégance, sécurité et technologie de pointe. 
           Notre équipe de chauffeurs professionnels vous accompagne à chaque trajet pour vous offrir une 
           expérience sur-mesure, fluide et totalement sécurisée.
         </p>
@@ -24,7 +24,7 @@ const AboutUs: React.FC = () => {
           <div className="prose text-gray-600">
             <p className="mb-4">
               Fondée avec la vision d'offrir un service de transport premium et personnalisé,
-              Chérif Car Services s'est établie comme une référence dans le secteur du transport
+              CMH Car Services s'est établie comme une référence dans le secteur du transport
               privé en Île-de-France.
             </p>
             <p className="mb-4">
