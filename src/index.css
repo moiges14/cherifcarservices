@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent pull-to-refresh on iOS */
+html, body {
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   background: linear-gradient(
     to right,
@@ -10,10 +20,73 @@ body {
     #ef4444 66.66% /* Red */
   );
   min-height: 100vh;
+  min-height: -webkit-fill-available;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Fix iOS height issues */
+@supports (-webkit-touch-callout: none) {
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
 }
 
 /* Semi-transparent overlay to improve readability */
 #root {
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   background-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Improve touch targets on mobile */
+button, a {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Custom scrollbar for iOS */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Disable text selection on interactive elements */
+button, a, .no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Fix iOS input zoom */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+input[type="password"] {
+  font-size: 16px;
+}
+
+/* Fix iOS button styles */
+button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Add smooth momentum scrolling */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Improve mobile form styles */
+input, select, textarea {
+  @apply rounded-lg shadow-sm;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Active state for mobile */
+@media (hover: none) {
+  .active\:bg-opacity-90:active {
+    @apply bg-opacity-90;
+  }
 }
