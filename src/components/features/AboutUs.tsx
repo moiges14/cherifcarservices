@@ -111,8 +111,8 @@ const AboutUs: React.FC = () => {
             <Phone className="w-6 h-6 text-emerald-600 mr-3" />
             <div>
               <div className="font-medium">Téléphone</div>
-              <a href="tel:+33606761824" className="text-emerald-600 hover:text-emerald-700">
-                +33 6 06 76 18 24
+              <a href="tel:0774683800" className="text-emerald-600 hover:text-emerald-700">
+                07 74 68 38 00
               </a>
             </div>
           </div>
@@ -121,7 +121,7 @@ const AboutUs: React.FC = () => {
             <MapPin className="w-6 h-6 text-emerald-600 mr-3" />
             <div>
               <div className="font-medium">Adresse</div>
-              <div>2B rue Paul Emile Victor, Louvres</div>
+              <div>Louvres, 95380</div>
             </div>
           </div>
 

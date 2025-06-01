@@ -138,7 +138,7 @@ const Services: React.FC = () => {
             Notre équipe est à votre disposition pour créer une offre adaptée à vos exigences.
           </p>
           <div className="mt-6 text-lg font-medium text-emerald-700">
-            Contactez-nous au : +33 6 06 76 18 24
+            Contactez-nous au : 07 74 68 38 00
           </div>
         </div>
       </div>

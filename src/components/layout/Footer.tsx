@@ -18,21 +18,20 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-center">
                 <Phone size={18} className="text-emerald-500 mr-2" />
-                <a href="tel:+33606761824" className="text-gray-400 hover:text-white">
-                  +33 6 06 76 18 24
+                <a href="tel:0774683800" className="text-gray-400 hover:text-white">
+                  07 74 68 38 00
                 </a>
               </li>
               <li className="flex items-center">
                 <Mail size={18} className="text-emerald-500 mr-2" />
-                <a href="mailto:moiges14@hotmail.com" className="text-gray-400 hover:text-white">
-                  moiges14@hotmail.com
+                <a href="mailto:contact@vip-chauffeur.fr" className="text-gray-400 hover:text-white">
+                  contact@vip-chauffeur.fr
                 </a>
               </li>
               <li className="flex items-start">
                 <MapPin size={18} className="text-emerald-500 mr-2 mt-1" />
                 <address className="text-gray-400 not-italic">
-                  2B rue Paul Emile Victor<br />
-                  Louvres<br />
+                  Louvres, 95380<br />
                   France
                 </address>
               </li>
