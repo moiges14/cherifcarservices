@@ -79,9 +79,9 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <img src="/eco-car.svg" alt="Chérif Car Services" className="h-10 w-10" />
+            <img src="/eco-car.svg" alt="CMH Car Services" className="h-10 w-10" />
             <div className="ml-2">
-              <div className="text-xl font-bold text-gray-900">Chérif Car Services</div>
+              <div className="text-xl font-bold text-gray-900">CMH Car Services</div>
               <div className="text-xs text-gray-600">Service de voiture avec chauffeur</div>
             </div>
           </div>
