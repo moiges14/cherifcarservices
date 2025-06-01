@@ -172,15 +172,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
     };
   }, []);
 
-  // Update markers and route when they change
   useEffect(() => {
     if (!map) return;
 
-    // Clear existing markers
     mapMarkers.forEach(marker => marker.setMap(null));
     const newMarkers: google.maps.Marker[] = [];
 
-    // Create new markers
     markers.forEach((location) => {
       let icon: google.maps.Symbol | string;
       
@@ -248,7 +245,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
     setMapMarkers(newMarkers);
 
-    // Update route if needed
     if (showRoute && directionsRenderer && markers.length >= 2) {
       const directionsService = new google.maps.DirectionsService();
       const origin = { lat: markers[0].latitude, lng: markers[0].longitude };
@@ -268,7 +264,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
       );
     }
 
-    // Fit bounds to show all markers
     if (markers.length > 0) {
       const bounds = new google.maps.LatLngBounds();
       markers.forEach(location => {
