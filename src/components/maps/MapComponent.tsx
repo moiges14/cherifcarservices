@@ -42,8 +42,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
       apiKey,
       version: 'weekly',
       libraries: ['places'],
-      // Add additional options for development
-      authReferrerPolicy: 'origin'
+      authReferrerPolicy: 'origin',
+      region: 'FR',
+      language: 'fr'
     });
 
     const loadMap = async () => {
