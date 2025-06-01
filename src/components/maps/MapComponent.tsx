@@ -31,7 +31,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const [mapError, setMapError] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiKey = 'AIzaSyC7f5jVEPhrtkT4wDMtm2CFUTrAkyIe7I4';
+    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     
     if (!apiKey) {
       setMapError('Google Maps API key is missing. Please check your environment variables.');
