@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
 import { Location } from '../../types';
 import { AlertCircle } from 'lucide-react';
 
@@ -31,160 +30,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const [mapError, setMapError] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-    
-    if (!apiKey) {
-      setMapError('Google Maps API key is missing. Please check your environment variables.');
-      return;
-    }
-
-    const loader = new Loader({
-      apiKey,
-      version: 'weekly',
-      libraries: ['places'],
-      region: 'FR',
-      language: 'fr',
-      // Update referrerPolicy for WebContainer environment
-      authReferrerPolicy: 'no-referrer-when-downgrade'
-    });
-
-    const loadMap = async () => {
-      try {
-        await loader.load();
-        if (!mapRef.current) return;
-
-        // Define France bounds
-        const franceBounds = new google.maps.LatLngBounds(
-          new google.maps.LatLng(41.3, -5.1), // SW corner
-          new google.maps.LatLng(51.1, 9.5)   // NE corner
-        );
-
-        const mapInstance = new google.maps.Map(mapRef.current, {
-          center,
-          zoom,
-          restriction: {
-            latLngBounds: franceBounds,
-            strictBounds: false
-          },
-          styles: [
-            {
-              featureType: 'administrative.country',
-              elementType: 'geometry',
-              stylers: [{ visibility: 'on' }]
-            },
-            {
-              featureType: 'administrative.province',
-              elementType: 'geometry',
-              stylers: [{ visibility: 'on' }]
-            },
-            {
-              featureType: 'road.highway',
-              elementType: 'geometry',
-              stylers: [{ visibility: 'on' }]
-            },
-            {
-              featureType: 'landscape',
-              elementType: 'geometry',
-              stylers: [{ color: '#f5f5f5' }]
-            },
-            {
-              featureType: 'water',
-              elementType: 'geometry',
-              stylers: [{ color: '#c9e9f6' }]
-            }
-          ],
-          disableDefaultUI: false,
-          zoomControl: true,
-          mapTypeControl: false,
-          streetViewControl: false,
-          fullscreenControl: true
-        });
-
-        setMap(mapInstance);
-        setMapError(null);
-
-        if (showRoute) {
-          const rendererInstance = new google.maps.DirectionsRenderer({
-            map: mapInstance,
-            suppressMarkers: true,
-            polylineOptions: {
-              strokeColor: '#10B981',
-              strokeWeight: 4
-            }
-          });
-          setDirectionsRenderer(rendererInstance);
-        }
-
-        if (showSearchBox && searchBoxRef.current) {
-          const searchBox = new google.maps.places.SearchBox(searchBoxRef.current, {
-            bounds: franceBounds
-          });
-          
-          searchBox.addListener('places_changed', () => {
-            const places = searchBox.getPlaces();
-            if (!places || places.length === 0) return;
-
-            const place = places[0];
-            if (!place.geometry || !place.geometry.location) return;
-
-            mapInstance.setCenter(place.geometry.location);
-            mapInstance.setZoom(15);
-
-            if (onLocationSelect) {
-              onLocationSelect({
-                latitude: place.geometry.location.lat(),
-                longitude: place.geometry.location.lng(),
-                address: place.formatted_address || ''
-              });
-            }
-          });
-
-          mapInstance.addListener('bounds_changed', () => {
-            searchBox.setBounds(mapInstance.getBounds() as google.maps.LatLngBounds);
-          });
-        }
-
-        if (onLocationSelect) {
-          mapInstance.addListener('click', async (e: google.maps.MapMouseEvent) => {
-            if (!e.latLng) return;
-
-            const geocoder = new google.maps.Geocoder();
-            try {
-              const response = await geocoder.geocode({
-                location: e.latLng,
-                region: 'FR'
-              });
-              
-              if (response.results[0]) {
-                onLocationSelect({
-                  latitude: e.latLng.lat(),
-                  longitude: e.latLng.lng(),
-                  address: response.results[0].formatted_address || ''
-                });
-              }
-            } catch (error) {
-              console.error('Geocoding error:', error);
-              setLocationError('Failed to get address for selected location');
-            }
-          });
-        }
-      } catch (error) {
-        console.error('Error loading Google Maps:', error);
-        setMapError('Failed to load Google Maps. Please check your API key and ensure it has the necessary permissions.');
-      }
-    };
-
-    loadMap();
-
-    return () => {
-      if (map) {
-        google.maps.event.clearInstanceListeners(map);
-      }
-      mapMarkers.forEach(marker => marker.setMap(null));
-      if (directionsRenderer) {
-        directionsRenderer.setMap(null);
-      }
-    };
+    // Temporarily disable Google Maps to prevent API errors
+    setMapError('Google Maps is temporarily disabled. Please configure a valid API key in your environment variables.');
   }, []);
 
   useEffect(() => {
@@ -291,10 +138,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
   return (
     <div className="relative h-full">
-      {(locationError || mapError) && (
+      {mapError && (
         <div className="absolute top-4 left-4 right-4 z-20 bg-red-50 text-red-700 px-4 py-3 rounded-lg shadow-md flex items-center">
           <AlertCircle size={20} className="mr-2 flex-shrink-0" />
-          <p>{locationError || mapError}</p>
+          <p>{mapError}</p>
         </div>
       )}
       
@@ -309,7 +156,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
         </div>
       )}
       
-      <div ref={mapRef} className={`w-full h-full rounded-lg ${className}`} />
+      <div ref={mapRef} className={`w-full h-full rounded-lg bg-gray-200 flex items-center justify-center ${className}`}>
+        <div className="text-center text-gray-500">
+          <AlertCircle size={48} className="mx-auto mb-2" />
+          <p>Map temporarily unavailable</p>
+        </div>
+      </div>
     </div>
   );
 };
