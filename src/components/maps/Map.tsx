@@ -10,17 +10,22 @@ interface MapProps {
   showSearchBox?: boolean;
   showRoute?: boolean;
   className?: string;
+  pickup?: { address: string; lat: number; lng: number };
+  destination?: { address: string; lat: number; lng: number };
+  driverLocation?: { lat: number; lng: number };
 }
 
 const Map: React.FC<MapProps> = ({
-  // Center on Paris by default
   center = { lat: 48.8566, lng: 2.3522 },
-  zoom = 6,
+  zoom = 12,
   markers = [],
   onLocationSelect,
   showSearchBox = false,
   showRoute = false,
   className = '',
+  pickup,
+  destination,
+  driverLocation,
 }) => {
   return (
     <MapComponent
@@ -31,6 +36,9 @@ const Map: React.FC<MapProps> = ({
       showSearchBox={showSearchBox}
       showRoute={showRoute}
       className={className}
+      pickup={pickup}
+      destination={destination}
+      driverLocation={driverLocation}
     />
   );
 };
