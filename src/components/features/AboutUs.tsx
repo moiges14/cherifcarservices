@@ -120,7 +120,7 @@ const AboutUs: React.FC = () => {
               "Ensemble, nous construisons un avenir où la mobilité rime avec durabilité."
             </p>
             <div className="mt-6">
-              <div className="font-semibold text-gray-900">L'Équipe EcoRide</div>
+              <div className="font-semibold text-gray-900">L'Équipe Terranga Vtc Services</div>
               <div className="text-gray-500">Fondateurs & Développeurs</div>
             </div>
           </div>
