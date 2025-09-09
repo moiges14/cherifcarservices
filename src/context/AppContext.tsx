@@ -106,6 +106,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const calculateDistance = (pickup: Location, dropoff: Location): number => {
+    // Vérifier que les objets Location sont valides
+    if (!pickup || !dropoff || 
+        typeof pickup.latitude !== 'number' || 
+        typeof pickup.longitude !== 'number' ||
+        typeof dropoff.latitude !== 'number' || 
+        typeof dropoff.longitude !== 'number') {
+      console.warn('Invalid location objects provided to calculateDistance');
+      return 10; // Distance par défaut en cas d'erreur
+    }
+    
     // Simple mock distance calculation
     const latDiff = Math.abs(pickup.latitude - dropoff.latitude);
     const lngDiff = Math.abs(pickup.longitude - dropoff.longitude);

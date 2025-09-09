@@ -251,7 +251,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
       // Récupérer les chauffeurs disponibles
       const { data: drivers, error } = await supabase
         .from('drivers')
-        .select('id, name')
+        .select('id')
         .eq('status', 'available');
 
       if (error) throw error;
