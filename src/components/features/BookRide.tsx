@@ -105,7 +105,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
 
       if (error) throw error;
 
-      onRideBooked({
+      onRideBooked && onRideBooked({
         ...data,
         driver: null,
         estimatedPrice: selectedOption.price
@@ -125,7 +125,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
           
           <div className="space-y-4">
             <Input
-              icon={MapPin}
+              leftIcon={<MapPin size={18} />}
               type="text"
               placeholder="Adresse de départ"
               value={pickup}
@@ -133,7 +133,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
             />
             
             <Input
-              icon={MapPin}
+              leftIcon={<MapPin size={18} />}
               type="text"
               placeholder="Destination"
               value={destination}
@@ -141,7 +141,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
             />
 
             <Input
-              icon={Clock}
+              leftIcon={<Clock size={18} />}
               type="time"
               placeholder="Heure de départ (optionnel)"
               value={scheduledTime}

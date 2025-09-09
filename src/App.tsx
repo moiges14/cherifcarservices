@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { AppProvider } from './context/AppContext';
 import { useAuth } from './context/AuthContext';
+import { useApp } from './context/AppContext';
 import AuthModal from './components/auth/AuthModal';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -20,6 +21,7 @@ function AppContent() {
   const [activePage, setActivePage] = useState('book');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, loading } = useAuth();
+  const { currentRide, bookRide, cancelRide } = useApp();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -40,9 +42,9 @@ function AppContent() {
           </AdminRoute>
         );
       case 'book':
-        return <BookRide />;
+        return <BookRide onRideBooked={bookRide} />;
       case 'rates':
-        return <BookRide />;
+        return <BookRide onRideBooked={bookRide} />;
       case 'history':
         return <RideHistory />;
       case 'profile':
@@ -52,7 +54,7 @@ function AppContent() {
       case 'about':
         return <AboutUs />;
       default:
-        return <BookRide />;
+        return <BookRide onRideBooked={bookRide} />;
     }
   };
 
@@ -67,7 +69,28 @@ function AppContent() {
       <main className="flex-grow">
         {renderContent()}
         
-        <ActiveRide />
+        {currentRide && (
+          <ActiveRide
+            rideId={currentRide.id}
+            pickup={currentRide.pickup}
+            destination={currentRide.dropoff}
+            driver={currentRide.driver || {
+              id: 'mock-driver',
+              name: 'Conducteur assigné',
+              rating: 4.8,
+              vehicle: {
+                make: 'Toyota',
+                model: 'Prius',
+                licensePlate: 'AB-123-CD',
+                color: 'Blanc'
+              },
+              phone: '+33 1 23 45 67 89',
+              photo: null
+            }}
+            status={currentRide.status}
+            onCancel={cancelRide}
+          />
+        )}
         
         <Reviews />
       </main>
