@@ -21,6 +21,13 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if Supabase is properly configured
+    if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+      setError('Configuration Supabase manquante. Veuillez configurer les variables d\'environnement VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY.');
+      return;
+    }
+    
     setLoading(true);
     setError('');
 
