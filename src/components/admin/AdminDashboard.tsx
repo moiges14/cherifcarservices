@@ -17,9 +17,11 @@ import {
   Trash2,
   Plus,
   Calendar,
-  Clock
+  Clock,
+  Bell
 } from 'lucide-react';
 import NotificationSettings from './NotificationSettings';
+import SetupGuide from './SetupGuide';
 
 interface Stats {
   totalUsers: number;
@@ -669,6 +671,7 @@ const AdminDashboard: React.FC = () => {
   const navigation = [
     { id: 'dashboard', label: 'Dashboard', icon: <Settings size={20} /> },
     { id: 'bookings', label: 'Réservations', icon: <Calendar size={20} /> },
+    { id: 'setup', label: 'Configuration', icon: <Settings size={20} /> },
     { id: 'admins', label: 'Admin Users', icon: <Users size={20} /> },
     { id: 'notifications', label: 'Notifications', icon: <Bell size={20} /> },
   ];
@@ -718,6 +721,7 @@ const AdminDashboard: React.FC = () => {
         <div className="flex-1">
           {activeSection === 'dashboard' && renderDashboard()}
           {activeSection === 'bookings' && renderBookings()}
+          {activeSection === 'setup' && <SetupGuide />}
           {activeSection === 'admins' && renderAdminUsers()}
           {activeSection === 'notifications' && <NotificationSettings />}
         </div>
