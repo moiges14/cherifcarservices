@@ -40,11 +40,6 @@ const Footer: React.FC = () => {
               </li>
               <li>
                 <a href="#" className="text-gray-300 hover:text-white transition-colors">
-                  Devenir chauffeur
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">
                   Nos services
                 </a>
               </li>
