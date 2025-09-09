@@ -10,7 +10,7 @@ const Footer: React.FC = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <Car className="w-8 h-8 text-blue-500" />
-              <span className="text-2xl font-bold">EcoRide</span>
+              <span className="text-2xl font-bold">Terranga Vtc Services</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
               Votre solution de transport écologique et abordable. 
@@ -88,7 +88,7 @@ const Footer: React.FC = () => {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">
-              © 2025 EcoRide. Tous droits réservés.
+              © 2025 Terranga Vtc Services. Tous droits réservés.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
