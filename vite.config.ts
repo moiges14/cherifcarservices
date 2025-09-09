@@ -7,28 +7,28 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['eco-car.svg', 'apple-touch-icon.png'],
+      includeAssets: ['terranga-logo.svg', 'terranga-icon.png'],
       manifest: {
-        name: 'VIP Chauffeur',
-        short_name: 'VIP Chauffeur',
-        description: 'Service de transport VIP professionnel',
+        name: 'Terranga VTC Services',
+        short_name: 'Terranga VTC',
+        description: 'Service de transport professionnel avec chauffeur',
         theme_color: '#10B981',
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'terranga-192x192.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'terranga-512x512.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'terranga-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
