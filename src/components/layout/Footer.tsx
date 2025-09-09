@@ -71,13 +71,12 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-blue-500" />
-                <span className="text-gray-300">contact@ecoride.fr</span>
+                <span className="text-gray-300">terrangavtcservices@outlook.fr</span>
               </div>
               <div className="flex items-start space-x-3">
                 <MapPin className="w-4 h-4 text-blue-500 mt-0.5" />
                 <span className="text-gray-300">
-                  123 Avenue de la République<br />
-                  75011 Paris, France
+                  Ile de France
                 </span>
               </div>
             </div>
