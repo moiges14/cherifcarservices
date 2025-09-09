@@ -4,6 +4,7 @@ import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import Button from '../common/Button';
+import NotificationCenter from '../admin/NotificationCenter';
 
 interface HeaderProps {
   setActivePage: (page: string) => void;
@@ -131,6 +132,7 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
 
           {/* Desktop User Profile */}
           <div className="hidden md:flex items-center space-x-4">
+            {user && <NotificationCenter />}
             {user ? (
               <div className="relative">
                 <button

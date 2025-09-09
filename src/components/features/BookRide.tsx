@@ -7,6 +7,7 @@ import Badge from '../common/Badge';
 import MapComponent from '../maps/MapComponent';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { useNotifications } from '../../hooks/useNotifications';
 
 interface RideOption {
   id: string;
@@ -90,6 +91,7 @@ interface BookRideProps {
 
 export default function BookRide({ onRideBooked }: BookRideProps) {
   const { user } = useAuth();
+  const { notifyNewBooking } = useNotifications();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
@@ -217,6 +219,9 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
 
       // Créer une notification pour les chauffeurs disponibles
       await notifyAvailableDrivers(data);
+      
+      // Envoyer les notifications de nouvelle commande
+      await notifyNewBooking(data);
 
       onRideBooked && onRideBooked({
         ...data,
