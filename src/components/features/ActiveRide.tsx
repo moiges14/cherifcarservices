@@ -14,11 +14,13 @@ interface Driver {
     color: string;
     licensePlate: string;
   };
-  location: {
+  location?: {
     lat: number;
     lng: number;
   };
   estimatedArrival: number; // minutes
+  phone?: string;
+  photo?: string | null;
 }
 
 interface ActiveRideProps {
@@ -39,6 +41,7 @@ export default function ActiveRide({
   onCancel 
 }: ActiveRideProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [showDriverDetails, setShowDriverDetails] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -88,6 +91,17 @@ export default function ActiveRide({
         <div className="text-sm text-gray-500 mt-1">
           Course #{rideId.slice(-8)}
         </div>
+        
+        {status === 'arrived' && (
+          <div className="mt-4 p-3 bg-green-50 rounded-lg">
+            <p className="text-green-800 font-medium">
+              🚗 Votre chauffeur vous attend !
+            </p>
+            <p className="text-green-600 text-sm">
+              Vérifiez le numéro de plaque : {driver.vehicle.licensePlate}
+            </p>
+          </div>
+        )}
       </Card>
 
       {/* Map */}
@@ -95,7 +109,7 @@ export default function ActiveRide({
         <MapComponent
           pickup={{ address: pickup, lat: 48.8566, lng: 2.3522 }}
           destination={{ address: destination, lat: 48.8606, lng: 2.3376 }}
-          driverLocation={driver.location}
+          driverLocation={driver.location || { lat: 48.8586, lng: 2.3486 }}
           showRoute={true}
         />
       </Card>
@@ -111,10 +125,20 @@ export default function ActiveRide({
         </div>
 
         <div className="flex items-center space-x-4 mb-4">
-          <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-            <span className="text-lg font-semibold text-gray-600">
-              {driver.name.charAt(0)}
-            </span>
+          <div className="w-12 h-12 rounded-full overflow-hidden">
+            {driver.photo ? (
+              <img
+                src={driver.photo}
+                alt={driver.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <span className="text-lg font-semibold text-gray-600">
+                  {driver.name.charAt(0)}
+                </span>
+              </div>
+            )}
           </div>
           <div className="flex-1">
             <div className="font-medium">{driver.name}</div>
@@ -125,13 +149,42 @@ export default function ActiveRide({
               {driver.vehicle.licensePlate}
             </div>
           </div>
+          <button
+            onClick={() => setShowDriverDetails(!showDriverDetails)}
+            className="text-emerald-600 text-sm font-medium"
+          >
+            {showDriverDetails ? 'Masquer' : 'Détails'}
+          </button>
         </div>
+        
+        {showDriverDetails && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-500">Expérience :</span>
+                <span className="ml-1 font-medium">5 ans</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Courses :</span>
+                <span className="ml-1 font-medium">2,847</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Langues :</span>
+                <span className="ml-1 font-medium">FR, EN</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Spécialités :</span>
+                <span className="ml-1 font-medium">Aéroport</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex space-x-3">
           <Button
             variant="outline"
             className="flex-1 flex items-center justify-center space-x-2"
-            onClick={() => window.open(`tel:0774683800`)}
+            onClick={() => window.open(`tel:${driver.phone || '0774683800'}`)}
           >
             <Phone className="w-4 h-4" />
             <span>Appeler</span>
@@ -169,17 +222,26 @@ export default function ActiveRide({
         </div>
 
         <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center space-x-1">
-              <Clock className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-600">Heure de départ</span>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <div className="flex items-center space-x-1 text-gray-600">
+                <Clock className="w-4 h-4 text-gray-400" />
+                <span>Heure de départ</span>
+              </div>
+              <div className="font-medium">
+                {currentTime.toLocaleTimeString('fr-FR', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
+              </div>
             </div>
-            <span className="font-medium">
-              {currentTime.toLocaleTimeString('fr-FR', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </span>
+            <div>
+              <div className="flex items-center space-x-1 text-gray-600">
+                <Navigation className="w-4 h-4 text-gray-400" />
+                <span>Distance estimée</span>
+              </div>
+              <div className="font-medium">12.5 km</div>
+            </div>
           </div>
         </div>
       </Card>
@@ -187,13 +249,31 @@ export default function ActiveRide({
       {/* Actions */}
       {status !== 'in_progress' && (
         <Card>
-          <Button
-            variant="outline"
-            className="w-full text-red-600 border-red-200 hover:bg-red-50"
-            onClick={onCancel}
-          >
-            Annuler la course
-          </Button>
+          <div className="space-y-3">
+            {status === 'matched' && (
+              <div className="text-center text-sm text-gray-600 mb-3">
+                Vous pouvez annuler gratuitement jusqu'à l'arrivée du chauffeur
+              </div>
+            )}
+            
+            <Button
+              variant="outline"
+              className="w-full text-red-600 border-red-200 hover:bg-red-50"
+              onClick={onCancel}
+            >
+              {status === 'arrived' ? 'Annuler (des frais peuvent s\'appliquer)' : 'Annuler la course'}
+            </Button>
+            
+            {status === 'arrived' && (
+              <Button
+                variant="primary"
+                className="w-full"
+                onClick={() => {/* Marquer comme en cours */}}
+              >
+                Confirmer la prise en charge
+              </Button>
+            )}
+          </div>
         </Card>
       )}
     </div>
