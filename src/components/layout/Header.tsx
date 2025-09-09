@@ -79,9 +79,11 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
         <div className="flex justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <Car className="w-6 h-6 text-white" />
-            </div>
+            <img 
+              src="/terranga-vtc-logo.png" 
+              alt="Terranga VTC Services" 
+              className="w-10 h-10 object-contain"
+            />
             <div className="ml-2">
               <div className="text-xl font-bold text-gray-900">Terranga Vtc Services</div>
               <div className="text-xs text-gray-600">Service de voiture avec chauffeur</div>
