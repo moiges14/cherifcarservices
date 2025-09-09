@@ -118,9 +118,9 @@ const UserProfile: React.FC = () => {
                   />
                 ) : (
                   <img
-                    src="/terranga-vtc-logo.png"
+                    src="/logo 14.png"
                     alt="Terranga VTC Services"
-                    className="w-16 h-16 object-contain rounded-full"
+                    className="w-16 h-16 object-contain"
                   />
                 )}
               </div>

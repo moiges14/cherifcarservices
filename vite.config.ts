@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['terranga-vtc-logo.png'],
+      includeAssets: ['logo 14.png'],
       manifest: {
         name: 'Terranga VTC Services',
         short_name: 'Terranga VTC',
@@ -18,17 +18,17 @@ export default defineConfig({
         orientation: 'portrait',
         icons: [
           {
-            src: 'terranga-vtc-logo.png',
+            src: 'logo 14.png',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'terranga-vtc-logo.png',
+            src: 'logo 14.png',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: 'terranga-vtc-logo.png',
+            src: 'logo 14.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'

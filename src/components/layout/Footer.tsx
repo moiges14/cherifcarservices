@@ -10,9 +10,9 @@ const Footer: React.FC = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <img 
-                src="/terranga-vtc-logo.png" 
+                src="/logo 14.png" 
                 alt="Terranga VTC Services" 
-                className="w-10 h-10 object-contain rounded-md bg-white p-1"
+                className="w-8 h-8 object-contain"
               />
               <span className="text-2xl font-bold">Terranga Vtc Services</span>
             </div>

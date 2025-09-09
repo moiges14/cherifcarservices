@@ -80,9 +80,9 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <img 
-              src="/terranga-vtc-logo.png"
+              src="/logo 14.png"
               alt="Terranga VTC Services" 
-              className="w-12 h-12 object-contain rounded-lg"
+              className="w-10 h-10 object-contain"
             />
             <div className="ml-2">
               <div className="text-xl font-bold text-gray-900">Terranga Vtc Services</div>
@@ -135,13 +135,13 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
               <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50 transition-colors"
+                  className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50"
                 >
                   <div className="w-8 h-8 rounded-full overflow-hidden">
                     <img
-                      src={profileData?.profile_picture || defaultProfilePicture}
+                      src={profileData?.profile_picture || "/logo 14.png"}
                       alt={displayName}
-                      className="w-full h-full object-contain bg-gray-50 p-1"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                   <span className="text-sm font-medium text-gray-700">
@@ -212,9 +212,9 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-white p-1">
                   <img
-                    src={profileData?.profile_picture || defaultProfilePicture}
+                    src={profileData?.profile_picture || "/logo 14.png"}
                     alt={displayName}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain bg-white"
                   />
                 </div>
                 <div className="ml-3">

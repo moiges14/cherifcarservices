@@ -81,9 +81,9 @@ const DriverProfile: React.FC = () => {
           <div className="relative">
             <div className="w-20 h-20 rounded-full overflow-hidden">
               <img
-                src={profileData.profile_picture || "/terranga-vtc-logo.png"}
+                src={profileData.profile_picture || "/logo 14.png"}
                 alt="Profile"
-                className="w-full h-full object-contain bg-gray-50 p-2"
+                className="w-full h-full object-contain"
               />
             </div>
             <button className="absolute bottom-0 right-0 bg-emerald-600 rounded-full p-2 text-white hover:bg-emerald-700">
