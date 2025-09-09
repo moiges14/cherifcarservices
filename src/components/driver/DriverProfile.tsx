@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import Card from '../common/Card';
 import Button from '../common/Button';
 import Input from '../common/Input';
-import { User, Phone, Car, License, Star, Camera } from 'lucide-react';
+import { User, Phone, Car, Dice1 as License, Star, Camera } from 'lucide-react';
 import { VehicleType } from '../../types';
 
 const DriverProfile: React.FC = () => {
