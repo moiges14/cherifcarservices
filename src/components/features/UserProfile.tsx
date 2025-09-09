@@ -117,7 +117,11 @@ const UserProfile: React.FC = () => {
                     className="w-20 h-20 rounded-full object-cover"
                   />
                 ) : (
-                  <User className="w-10 h-10 text-green-600" />
+                  <img
+                    src="/terranga-vtc-logo.png"
+                    alt="Terranga VTC Services"
+                    className="w-16 h-16 object-contain rounded-full"
+                  />
                 )}
               </div>
               <div>

@@ -12,7 +12,7 @@ const Footer: React.FC = () => {
               <img 
                 src="/terranga-vtc-logo.png" 
                 alt="Terranga VTC Services" 
-                className="w-8 h-8 object-contain"
+                className="w-10 h-10 object-contain rounded-md bg-white p-1"
               />
               <span className="text-2xl font-bold">Terranga Vtc Services</span>
             </div>

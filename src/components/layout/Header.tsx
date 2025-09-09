@@ -71,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
   };
 
   const displayName = profileData?.name || user?.email?.split('@')[0] || 'User';
-  const defaultProfilePicture = "https://upload.wikimedia.org/wikipedia/commons/f/fd/Flag_of_Senegal.svg";
+  const defaultProfilePicture = "/terranga-vtc-logo.png";
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -80,9 +80,9 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
             <img 
-              src="/terranga-vtc-logo.png" 
+              src="/terranga-vtc-logo.png"
               alt="Terranga VTC Services" 
-              className="w-10 h-10 object-contain"
+              className="w-12 h-12 object-contain rounded-lg"
             />
             <div className="ml-2">
               <div className="text-xl font-bold text-gray-900">Terranga Vtc Services</div>
@@ -135,13 +135,13 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
               <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50"
+                  className="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50 transition-colors"
                 >
                   <div className="w-8 h-8 rounded-full overflow-hidden">
                     <img
                       src={profileData?.profile_picture || defaultProfilePicture}
                       alt={displayName}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain bg-gray-50 p-1"
                     />
                   </div>
                   <span className="text-sm font-medium text-gray-700">
@@ -210,11 +210,11 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
           <div className="px-4 py-6 bg-emerald-600">
             {user ? (
               <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full overflow-hidden bg-white">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-white p-1">
                   <img
                     src={profileData?.profile_picture || defaultProfilePicture}
                     alt={displayName}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 </div>
                 <div className="ml-3">
