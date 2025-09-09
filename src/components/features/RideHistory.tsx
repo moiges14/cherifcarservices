@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Clock, DollarSign, Star } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Card } from '../common/Card';
+import Card from '../common/Card';
 import Badge from '../common/Badge';
 
 interface Ride {
