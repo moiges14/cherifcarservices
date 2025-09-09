@@ -7,7 +7,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import BookRide from './components/features/BookRide';
 import ActiveRide from './components/features/ActiveRide';
-import RideHistory from './components/features/RideHistory';
+import { RideHistory } from './components/features/RideHistory';
 import UserProfile from './components/features/UserProfile';
 import Services from './components/features/Services';
 import Reviews from './components/features/Reviews';
