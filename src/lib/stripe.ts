@@ -1,4 +1,10 @@
 import { products } from '../stripe-config';
+import { loadStripe } from '@stripe/stripe-js';
+
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+export { stripePromise };
 
 export async function createCheckoutSession(
   priceId: string,
