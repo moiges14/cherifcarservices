@@ -435,6 +435,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
               {formData.date} à {formData.time} • {formData.passengers} passager{formData.passengers > 1 ? 's' : ''}
             </span>
             {formData.isScheduled && (
+              <>
                 <Button
                   variant="secondary"
                   onClick={handlePaymentClick}
@@ -444,6 +445,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
                   Payer maintenant
                 </Button>
               <Badge variant="info" size="sm">Programmé</Badge>
+              </>
             )}
           </div>
         </div>
