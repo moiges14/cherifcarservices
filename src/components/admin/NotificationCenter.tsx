@@ -47,7 +47,7 @@ const NotificationCenter: React.FC = () => {
         .from('booking_notifications')
         .select(`
           *,
-          bookings!booking_id (
+          bookings (
             booking_reference,
             pickup,
             dropoff,
@@ -55,7 +55,7 @@ const NotificationCenter: React.FC = () => {
             time,
             status,
             contact_phone,
-            users!user_id (email)
+            users (email)
           )
         `)
         .eq('recipient_id', user?.id)
