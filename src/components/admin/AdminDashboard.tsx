@@ -203,8 +203,8 @@ const AdminDashboard: React.FC = () => {
         .from('bookings')
         .select(`
           *,
-          users:user_id (email, name),
-          drivers:driver_id (name)
+          users!user_id (email, name),
+          drivers!driver_id (name)
         `)
         .order('created_at', { ascending: false });
 
