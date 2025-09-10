@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Loader } from '@googlemaps/js-api-loader';
 import { MapPin, Clock, Users, Zap, Car, DollarSign, Calendar, Phone, User } from 'lucide-react';
 import Button from '../common/Button';
 import Input from '../common/Input';
@@ -100,6 +101,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   const [estimatedDuration, setEstimatedDuration] = useState(0);
   const [savedLocations, setSavedLocations] = useState<any[]>([]);
   const [showPayment, setShowPayment] = useState(false);
+  const [googleMaps, setGoogleMaps] = useState<typeof google.maps | null>(null);
   
   const [formData, setFormData] = useState<BookingFormData>({
     pickup: '',
@@ -119,14 +121,14 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
     if (user) {
       loadSavedLocations();
       loadUserProfile();
+      loadGoogleMaps();
     }
   }, [user]);
 
   useEffect(() => {
-    if (formData.pickup && formData.destination && selectedOption) {
+    if (formData.pickup && formData.destination && selectedOption && googleMaps) {
       calculateDistanceAndPrice();
     }
-  }, [formData.pickup, formData.destination, selectedOption]);
 
   const loadSavedLocations = async () => {
     try {
