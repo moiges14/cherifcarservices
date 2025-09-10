@@ -16,6 +16,8 @@ import AboutUs from './components/features/AboutUs';
 import ChatAssistant from './components/common/ChatAssistant';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AdminRoute from './components/admin/AdminRoute';
+import PaymentSuccess from './components/payment/PaymentSuccess';
+import PaymentCancel from './components/payment/PaymentCancel';
 
 function AppContent() {
   const [activePage, setActivePage] = useState('book');
@@ -34,6 +36,14 @@ function AppContent() {
     setIsAuthModalOpen(false);
   };
 
+  // Handle payment success/cancel routes
+  if (window.location.pathname === '/payment-success') {
+    return <PaymentSuccess />;
+  }
+  
+  if (window.location.pathname === '/payment-cancel') {
+    return <PaymentCancel />;
+  }
   const renderContent = () => {
     switch (activePage) {
       case 'admin':

@@ -8,6 +8,7 @@ import MapComponent from '../maps/MapComponent';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useNotifications } from '../../hooks/useNotifications';
+import StripeCheckout from '../payment/StripeCheckout';
 
 interface RideOption {
   id: string;
@@ -97,6 +98,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [estimatedDistance, setEstimatedDistance] = useState(0);
   const [savedLocations, setSavedLocations] = useState<any[]>([]);
+  const [showPayment, setShowPayment] = useState(false);
   
   const [formData, setFormData] = useState<BookingFormData>({
     pickup: '',
@@ -249,6 +251,10 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handlePaymentClick = () => {
+    setShowPayment(true);
   };
 
   const notifyAvailableDrivers = async (booking: any) => {
@@ -429,6 +435,14 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
               {formData.date} à {formData.time} • {formData.passengers} passager{formData.passengers > 1 ? 's' : ''}
             </span>
             {formData.isScheduled && (
+                <Button
+                  variant="secondary"
+                  onClick={handlePaymentClick}
+                  className="flex-1"
+                  disabled={loading}
+                >
+                  Payer maintenant
+                </Button>
               <Badge variant="info" size="sm">Programmé</Badge>
             )}
           </div>
@@ -651,6 +665,13 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
       </Card>
+
+      <StripeCheckout
+        isOpen={showPayment}
+        onClose={() => setShowPayment(false)}
+        selectedService="reservation"
+        amount={estimatedPrice}
+      />
     </div>
   );
 }
