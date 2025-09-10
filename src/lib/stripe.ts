@@ -11,13 +11,14 @@ export async function createCheckoutSession(
   mode: 'payment' | 'subscription',
   successUrl: string,
   cancelUrl: string,
+  authToken: string,
 ) {
   try {
     const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        'Authorization': `Bearer ${authToken}`,
       },
       body: JSON.stringify({
         price_id: priceId,

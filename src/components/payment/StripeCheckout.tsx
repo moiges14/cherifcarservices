@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, CreditCard, Check } from 'lucide-react';
 import { createCheckoutSession } from '../../lib/stripe';
 import { products } from '../../stripe-config';
+import { supabase } from '../../lib/supabase';
 import Button from '../common/Button';
 import Card from '../common/Card';
 
@@ -26,6 +27,13 @@ const StripeCheckout: React.FC<StripeCheckoutProps> = ({
     setError('');
 
     try {
+      // Get the current user's session token
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        throw new Error('Vous devez être connecté pour effectuer un paiement');
+      }
+
       const product = products[productKey];
       const successUrl = `${window.location.origin}/payment-success`;
       const cancelUrl = `${window.location.origin}/payment-cancel`;
@@ -34,7 +42,8 @@ const StripeCheckout: React.FC<StripeCheckoutProps> = ({
         product.priceId,
         product.mode,
         successUrl,
-        cancelUrl
+        cancelUrl,
+        session.access_token
       );
 
       // Redirect to Stripe Checkout
