@@ -20,6 +20,7 @@ import AdminRoute from './components/admin/AdminRoute';
 function AppContent() {
   const [activePage, setActivePage] = useState('book');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const { user, loading } = useAuth();
   const { currentRide, bookRide, cancelRide } = useApp();
 
@@ -99,7 +100,9 @@ function AppContent() {
       
       <AuthModal 
         isOpen={isAuthModalOpen} 
-        onClose={handleAuthModalClose} 
+        onClose={handleAuthModalClose}
+        mode={authMode}
+        onModeChange={setAuthMode}
       />
 
       <ChatAssistant />
