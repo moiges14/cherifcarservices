@@ -43,7 +43,9 @@ const NotificationCenter: React.FC = () => {
   const loadNotifications = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // Step 1: Fetch notifications with bookings (without users)
+      const { data: notificationsData, error: notificationsError } = await supabase
         .from('booking_notifications')
         .select(`
           *,
@@ -55,22 +57,47 @@ const NotificationCenter: React.FC = () => {
             time,
             status,
             contact_phone,
-            users (email)
+            user_id
           )
         `)
         .eq('recipient_id', user?.id)
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (error) throw error;
+      if (notificationsError) throw notificationsError;
 
-      const formattedNotifications = data.map(notification => ({
+      // Step 2: Collect unique user_ids and fetch user emails separately
+      const userIds = [...new Set(
+        notificationsData
+          ?.filter(n => n.bookings?.user_id)
+          .map(n => n.bookings.user_id)
+      )];
+
+      let userEmails: { [key: string]: string } = {};
+      
+      if (userIds.length > 0) {
+        const { data: usersData, error: usersError } = await supabase
+          .from('users')
+          .select('id, email')
+          .in('id', userIds);
+
+        if (usersError) throw usersError;
+
+        // Create a mapping of user_id to email
+        userEmails = usersData?.reduce((acc, user) => {
+          acc[user.id] = user.email;
+          return acc;
+        }, {} as { [key: string]: string }) || {};
+      }
+
+      // Step 3: Map emails back to notifications
+      const formattedNotifications = notificationsData?.map(notification => ({
         ...notification,
         booking: notification.bookings ? {
           ...notification.bookings,
-          user_email: notification.bookings.users?.email
+          user_email: userEmails[notification.bookings.user_id] || 'Email non disponible'
         } : null
-      }));
+      })) || [];
 
       setNotifications(formattedNotifications);
       setUnreadCount(formattedNotifications.filter(n => !n.is_read).length);
