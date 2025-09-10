@@ -219,33 +219,6 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
     }
   };
 
-  // Fonction pour vérifier si Google Maps est chargé
-  const isGoogleMapsLoaded = () => {
-    return typeof google !== 'undefined' && google.maps && google.maps.DistanceMatrixService;
-  };
-
-  // Attendre que Google Maps soit chargé avant de calculer
-  useEffect(() => {
-    if (formData.pickup && formData.destination && selectedOption) {
-      if (isGoogleMapsLoaded()) {
-        calculateDistanceAndPrice();
-      } else {
-        // Attendre que Google Maps soit chargé
-        const checkGoogleMaps = setInterval(() => {
-          if (isGoogleMapsLoaded()) {
-            clearInterval(checkGoogleMaps);
-            calculateDistanceAndPrice();
-          }
-        }, 100);
-        
-        // Nettoyer l'intervalle après 10 secondes
-        setTimeout(() => {
-          clearInterval(checkGoogleMaps);
-        }, 10000);
-      }
-    }
-  }, [formData.pickup, formData.destination, selectedOption]);
-
   const formatDuration = (minutes: number) => {
     
     if (minutes < 60) {
