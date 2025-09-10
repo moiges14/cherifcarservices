@@ -129,6 +129,22 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
     if (formData.pickup && formData.destination && selectedOption && googleMaps) {
       calculateDistanceAndPrice();
     }
+  }, [formData.pickup, formData.destination, selectedOption, googleMaps]);
+
+  const loadGoogleMaps = async () => {
+    try {
+      const loader = new Loader({
+        apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || '',
+        version: 'weekly',
+        libraries: ['places', 'geometry']
+      });
+
+      const google = await loader.load();
+      setGoogleMaps(google.maps);
+    } catch (error) {
+      console.error('Erreur lors du chargement de Google Maps:', error);
+    }
+  };
 
   const loadSavedLocations = async () => {
     try {
@@ -163,22 +179,22 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   };
 
   const calculateDistanceAndPrice = async () => {
-    if (!selectedOption || !googleMaps) return;
+    if (!selectedOption) return;
     
     try {
       // Utiliser l'API Google Maps Distance Matrix
-      const service = new googleMaps.DistanceMatrixService();
+      const service = new google.maps.DistanceMatrixService();
       
       const result = await new Promise<google.maps.DistanceMatrixResponse>((resolve, reject) => {
         service.getDistanceMatrix({
           origins: [formData.pickup],
           destinations: [formData.destination],
-          travelMode: googleMaps.TravelMode.DRIVING,
-          unitSystem: googleMaps.UnitSystem.METRIC,
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.METRIC,
           avoidHighways: false,
           avoidTolls: false
         }, (response, status) => {
-          if (status === googleMaps.DistanceMatrixStatus.OK && response) {
+          if (status === google.maps.DistanceMatrixStatus.OK && response) {
             resolve(response);
           } else {
             reject(new Error(`Distance Matrix API error: ${status}`));
@@ -222,7 +238,6 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   };
 
   const formatDuration = (minutes: number) => {
-    
     if (minutes < 60) {
       return `${minutes} min`;
     } else {
@@ -498,7 +513,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
               {formData.date} à {formData.time} • {formData.passengers} passager{formData.passengers > 1 ? 's' : ''}
             </span>
             {formData.isScheduled && (
-              <>
+              <div className="flex items-center space-x-2">
                 <Button
                   variant="secondary"
                   onClick={handlePaymentClick}
@@ -507,8 +522,8 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
                 >
                   Payer maintenant
                 </Button>
-              <Badge variant="info" size="sm">Programmé</Badge>
-              </>
+                <Badge variant="info" size="sm">Programmé</Badge>
+              </div>
             )}
           </div>
         </div>
