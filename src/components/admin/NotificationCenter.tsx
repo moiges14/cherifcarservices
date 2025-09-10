@@ -50,7 +50,7 @@ const NotificationCenter: React.FC = () => {
         .select(`
           *,
           bookings (
-            booking_reference,
+            id,
             pickup,
             dropoff,
             date,
@@ -95,6 +95,7 @@ const NotificationCenter: React.FC = () => {
         ...notification,
         booking: notification.bookings ? {
           ...notification.bookings,
+          booking_reference: `REF-${notification.bookings.id.slice(-8)}`,
           user_email: userEmails[notification.bookings.user_id] || 'Email non disponible'
         } : null
       })) || [];
