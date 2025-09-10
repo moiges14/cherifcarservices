@@ -55,7 +55,7 @@ const NotificationCenter: React.FC = () => {
             time,
             status,
             contact_phone,
-            users!user_id (email)
+            users (email)
           )
         `)
         .eq('recipient_id', user?.id)
