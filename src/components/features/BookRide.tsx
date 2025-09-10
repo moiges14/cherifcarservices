@@ -179,22 +179,22 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   };
 
   const calculateDistanceAndPrice = async () => {
-    if (!selectedOption || !googleMaps) return;
+    if (!selectedOption) return;
     
     try {
       // Utiliser l'API Google Maps Distance Matrix
-      const service = new googleMaps.DistanceMatrixService();
+      const service = new google.maps.DistanceMatrixService();
       
       const result = await new Promise<google.maps.DistanceMatrixResponse>((resolve, reject) => {
         service.getDistanceMatrix({
           origins: [formData.pickup],
           destinations: [formData.destination],
-          travelMode: googleMaps.TravelMode.DRIVING,
-          unitSystem: googleMaps.UnitSystem.METRIC,
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.METRIC,
           avoidHighways: false,
           avoidTolls: false
         }, (response, status) => {
-          if (status === googleMaps.DistanceMatrixStatus.OK && response) {
+          if (status === google.maps.DistanceMatrixStatus.OK && response) {
             resolve(response);
           } else {
             reject(new Error(`Distance Matrix API error: ${status}`));
