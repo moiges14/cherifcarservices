@@ -97,6 +97,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   const [loading, setLoading] = useState(false);
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [estimatedDistance, setEstimatedDistance] = useState(0);
+  const [estimatedDuration, setEstimatedDuration] = useState(0);
   const [savedLocations, setSavedLocations] = useState<any[]>([]);
   const [showPayment, setShowPayment] = useState(false);
   
@@ -123,7 +124,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
 
   useEffect(() => {
     if (formData.pickup && formData.destination && selectedOption) {
-      calculatePrice();
+      calculateDistanceAndPrice();
     }
   }, [formData.pickup, formData.destination, selectedOption]);
 
@@ -159,15 +160,101 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
     }
   };
 
-  const calculatePrice = () => {
+  const calculateDistanceAndPrice = async () => {
     if (!selectedOption) return;
     
-    // Simulation du calcul de distance (en réalité, utiliser une API de géolocalisation)
-    const mockDistance = Math.random() * 20 + 5; // 5-25 km
-    const price = selectedOption.basePrice + (mockDistance * selectedOption.pricePerKm);
+    try {
+      // Utiliser l'API Google Maps Distance Matrix
+      const service = new google.maps.DistanceMatrixService();
+      
+      const result = await new Promise<google.maps.DistanceMatrixResponse>((resolve, reject) => {
+        service.getDistanceMatrix({
+          origins: [formData.pickup],
+          destinations: [formData.destination],
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.METRIC,
+          avoidHighways: false,
+          avoidTolls: false
+        }, (response, status) => {
+          if (status === google.maps.DistanceMatrixStatus.OK && response) {
+            resolve(response);
+          } else {
+            reject(new Error(`Distance Matrix API error: ${status}`));
+          }
+        });
+      });
+
+      const element = result.rows[0]?.elements[0];
+      
+      if (element && element.status === 'OK') {
+        const distanceInKm = element.distance.value / 1000; // Convertir en km
+        const durationInMinutes = Math.ceil(element.duration.value / 60); // Convertir en minutes
+        const price = selectedOption.basePrice + (distanceInKm * selectedOption.pricePerKm);
+        
+        setEstimatedDistance(distanceInKm);
+        setEstimatedDuration(durationInMinutes);
+        setEstimatedPrice(price);
+      } else {
+        // Fallback en cas d'erreur
+        console.warn('Impossible de calculer la distance, utilisation d\'une estimation');
+        const fallbackDistance = 10; // 10 km par défaut
+        const fallbackDuration = 15; // 15 minutes par défaut
+        const price = selectedOption.basePrice + (fallbackDistance * selectedOption.pricePerKm);
+        
+        setEstimatedDistance(fallbackDistance);
+        setEstimatedDuration(fallbackDuration);
+        setEstimatedPrice(price);
+      }
+    } catch (error) {
+      console.error('Erreur lors du calcul de distance:', error);
+      
+      // Fallback en cas d'erreur
+      const fallbackDistance = 10; // 10 km par défaut
+      const fallbackDuration = 15; // 15 minutes par défaut
+      const price = selectedOption.basePrice + (fallbackDistance * selectedOption.pricePerKm);
+      
+      setEstimatedDistance(fallbackDistance);
+      setEstimatedDuration(fallbackDuration);
+      setEstimatedPrice(price);
+    }
+  };
+
+  // Fonction pour vérifier si Google Maps est chargé
+  const isGoogleMapsLoaded = () => {
+    return typeof google !== 'undefined' && google.maps && google.maps.DistanceMatrixService;
+  };
+
+  // Attendre que Google Maps soit chargé avant de calculer
+  useEffect(() => {
+    if (formData.pickup && formData.destination && selectedOption) {
+      if (isGoogleMapsLoaded()) {
+        calculateDistanceAndPrice();
+      } else {
+        // Attendre que Google Maps soit chargé
+        const checkGoogleMaps = setInterval(() => {
+          if (isGoogleMapsLoaded()) {
+            clearInterval(checkGoogleMaps);
+            calculateDistanceAndPrice();
+          }
+        }, 100);
+        
+        // Nettoyer l'intervalle après 10 secondes
+        setTimeout(() => {
+          clearInterval(checkGoogleMaps);
+        }, 10000);
+      }
+    }
+  }, [formData.pickup, formData.destination, selectedOption]);
+
+  const formatDuration = (minutes: number) => {
     
-    setEstimatedDistance(mockDistance);
-    setEstimatedPrice(price);
+    if (minutes < 60) {
+      return `${minutes} min`;
+    } else {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      return `${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}min` : ''}`;
+    }
   };
 
   const handleLocationSelect = (field: 'pickup' | 'destination', location: any) => {
@@ -208,7 +295,8 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
         special_requests: formData.specialRequests,
         contact_phone: formData.contactPhone,
         estimated_price: estimatedPrice,
-        estimated_distance: estimatedDistance
+        estimated_distance: estimatedDistance,
+        estimated_duration: estimatedDuration
       };
 
       const { data, error } = await supabase
@@ -496,7 +584,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
                         </div>
                         <div className="flex items-center space-x-1">
                           <Clock className="w-3 h-3" />
-                          <span>~{option.estimatedTime} min</span>
+                          <span>~{estimatedDuration > 0 ? formatDuration(estimatedDuration) : `${option.estimatedTime} min`}</span>
                         </div>
                       </div>
                     </div>
@@ -571,7 +659,16 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
           
           <div className="flex justify-between items-center">
             <span className="text-gray-600">Distance estimée</span>
-            <span className="font-medium">{estimatedDistance.toFixed(1)} km</span>
+            <span className="font-medium">
+              {estimatedDistance > 0 ? `${estimatedDistance.toFixed(1)} km` : 'Calcul en cours...'}
+            </span>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <span className="text-gray-600">Durée estimée</span>
+            <span className="font-medium">
+              {estimatedDuration > 0 ? formatDuration(estimatedDuration) : 'Calcul en cours...'}
+            </span>
           </div>
           
           <div className="border-t pt-4">
