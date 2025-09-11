@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, User, Clock, Car, MapPin, LogOut, Euro, Briefcase, Info } from 'lucide-react';
+import { Menu, X, User, Clock, Car, MapPin, LogOut, Euro, Briefcase, Info, Settings } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -46,6 +47,7 @@ const Header: React.FC<HeaderProps> = ({ setActivePage, activePage, onAuthClick 
     { id: 'rates', label: 'Tarifs', icon: <Euro size={18} /> },
     { id: 'services', label: 'Prestations', icon: <Briefcase size={18} /> },
     { id: 'about', label: 'Qui sommes-nous', icon: <Info size={18} /> },
+    { id: 'admin', label: 'Administration', icon: <Settings size={18} /> },
   ];
 
   const userMenuItems = [
