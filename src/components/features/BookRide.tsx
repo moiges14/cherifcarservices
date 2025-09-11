@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
-import { MapPin, Clock, Users, Zap, Car, DollarSign, Calendar, Phone, User } from 'lucide-react';
+import { MapPin, Clock, Users, Zap, Car, DollarSign, Calendar, Phone, User, X } from 'lucide-react';
 import Button from '../common/Button';
 import Input from '../common/Input';
 import Card from '../common/Card';
@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { useNotifications } from '../../hooks/useNotifications';
 import StripeCheckout from '../payment/StripeCheckout';
+import RoutePreview from './RoutePreview';
 
 interface RideOption {
   id: string;
@@ -101,6 +102,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   const [estimatedDuration, setEstimatedDuration] = useState(0);
   const [savedLocations, setSavedLocations] = useState<any[]>([]);
   const [showPayment, setShowPayment] = useState(false);
+  const [showRoutePreview, setShowRoutePreview] = useState(false);
   const [googleMaps, setGoogleMaps] = useState<typeof google.maps | null>(null);
   
   const [formData, setFormData] = useState<BookingFormData>({
@@ -256,10 +258,20 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
 
   const handleNextStep = () => {
     if (currentStep === 1 && formData.pickup && formData.destination) {
-      setCurrentStep(2);
+      // Afficher l'aperçu du trajet avant de passer à l'étape 2
+      setShowRoutePreview(true);
     } else if (currentStep === 2 && selectedOption) {
       setCurrentStep(3);
     }
+  };
+
+  const handleRouteConfirm = () => {
+    setShowRoutePreview(false);
+    setCurrentStep(2);
+  };
+
+  const handleRouteEdit = () => {
+    setShowRoutePreview(false);
   };
 
   const handlePreviousStep = () => {
@@ -477,7 +489,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
         className="w-full"
         disabled={!formData.pickup || !formData.destination}
       >
-        Continuer
+        Voir l'aperçu du trajet
       </Button>
     </div>
   );
@@ -754,6 +766,41 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
         {currentStep === 2 && renderStep2()}
         {currentStep === 3 && renderStep3()}
       </Card>
+
+      {/* Aperçu du trajet */}
+      {showRoutePreview && formData.pickup && formData.destination && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Aperçu de votre trajet</h2>
+                <button
+                  onClick={() => setShowRoutePreview(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <RoutePreview
+                pickup={{
+                  address: formData.pickup,
+                  lat: 48.8566, // Coordonnées par défaut (Paris)
+                  lng: 2.3522
+                }}
+                destination={{
+                  address: formData.destination,
+                  lat: 48.8606, // Coordonnées par défaut (Paris)
+                  lng: 2.3376
+                }}
+                vehicleType={selectedOption?.type || 'standard'}
+                onConfirm={handleRouteConfirm}
+                onEdit={handleRouteEdit}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <StripeCheckout
         isOpen={showPayment}

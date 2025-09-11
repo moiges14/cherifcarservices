@@ -13,6 +13,7 @@ import UserProfile from './components/features/UserProfile';
 import Services from './components/features/Services';
 import Reviews from './components/features/Reviews';
 import AboutUs from './components/features/AboutUs';
+import RoutePreview from './components/features/RoutePreview';
 import ChatAssistant from './components/common/ChatAssistant';
 import AdminDashboard from './components/admin/AdminDashboard';
 import AdminRoute from './components/admin/AdminRoute';
