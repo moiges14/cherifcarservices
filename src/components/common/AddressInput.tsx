@@ -122,7 +122,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
     setLoading(true);
     try {
       const request = {
-        placeId: suggestion.place_id,
+        placeId: String(suggestion.place_id),
         fields: ['formatted_address', 'geometry', 'name', 'place_id']
       };
 
