@@ -11,6 +11,7 @@ import { supabase } from '../../lib/supabase';
 import { useNotifications } from '../../hooks/useNotifications';
 import StripeCheckout from '../payment/StripeCheckout';
 import RoutePreview from './RoutePreview';
+import AddressInput from '../common/AddressInput';
 
 interface RideOption {
   id: string;
