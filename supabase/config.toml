@@ -1,0 +1,38 @@
+[project]
+ref = "pyxelgbnpwxwexnuzcun"
+
+[functions."send-email"]
+verify_jwt = false
+
+[[functions."send-email".runtime_config.deno_config.permissions]]
+net = ["api.resend.com"]
+
+[functions."send-sms"]
+verify_jwt = false
+
+[[functions."send-sms".runtime_config.deno_config.permissions]]
+net = ["api.twilio.com"]
+
+[functions."chatgpt"]
+verify_jwt = false
+
+[[functions."chatgpt".runtime_config.deno_config.permissions]]
+net = ["api.openai.com"]
+
+[functions."payment-intent"]
+verify_jwt = false
+
+[[functions."payment-intent".runtime_config.deno_config.permissions]]
+net = ["api.stripe.com"]
+
+[functions."stripe-checkout"]
+verify_jwt = false
+
+[[functions."stripe-checkout".runtime_config.deno_config.permissions]]
+net = ["api.stripe.com"]
+
+[functions."stripe-webhook"]
+verify_jwt = false
+
+[[functions."stripe-webhook".runtime_config.deno_config.permissions]]
+net = ["api.stripe.com"]
