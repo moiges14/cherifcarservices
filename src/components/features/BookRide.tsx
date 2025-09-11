@@ -104,8 +104,6 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   const [showPayment, setShowPayment] = useState(false);
   const [showRoutePreview, setShowRoutePreview] = useState(false);
   const [googleMaps, setGoogleMaps] = useState<typeof google.maps | null>(null);
-  const [pickupCoords, setPickupCoords] = useState<{lat: number, lng: number} | null>(null);
-  const [destinationCoords, setDestinationCoords] = useState<{lat: number, lng: number} | null>(null);
   
   const [formData, setFormData] = useState<BookingFormData>({
     pickup: '',
@@ -787,13 +785,13 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
               <RoutePreview
                 pickup={{
                   address: formData.pickup,
-                  lat: 48.8566, // Coordonnées par défaut (Paris)
-                  lng: 2.3522
+                  lat: pickupCoords?.lat || 48.8566,
+                  lng: pickupCoords?.lng || 2.3522
                 }}
                 destination={{
                   address: formData.destination,
-                  lat: 48.8606, // Coordonnées par défaut (Paris)
-                  lng: 2.3376
+                  lat: destinationCoords?.lat || 48.8606,
+                  lng: destinationCoords?.lng || 2.3376
                 }}
                 vehicleType={selectedOption?.type || 'standard'}
                 onConfirm={handleRouteConfirm}
