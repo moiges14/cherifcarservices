@@ -104,6 +104,8 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   const [showPayment, setShowPayment] = useState(false);
   const [showRoutePreview, setShowRoutePreview] = useState(false);
   const [googleMaps, setGoogleMaps] = useState<typeof google.maps | null>(null);
+  const [pickupCoords, setPickupCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [destinationCoords, setDestinationCoords] = useState<{lat: number, lng: number} | null>(null);
   
   const [formData, setFormData] = useState<BookingFormData>({
     pickup: '',
