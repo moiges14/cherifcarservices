@@ -104,6 +104,8 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   const [showPayment, setShowPayment] = useState(false);
   const [showRoutePreview, setShowRoutePreview] = useState(false);
   const [googleMaps, setGoogleMaps] = useState<typeof google.maps | null>(null);
+  const [pickupCoords, setPickupCoords] = useState<{lat: number, lng: number} | null>(null);
+  const [destinationCoords, setDestinationCoords] = useState<{lat: number, lng: number} | null>(null);
   
   const [formData, setFormData] = useState<BookingFormData>({
     pickup: '',
@@ -254,6 +256,13 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
       ...prev,
       [field]: location.address
     }));
+    
+    // Store coordinates for RoutePreview
+    if (field === 'pickup') {
+      setPickupCoords({ lat: location.lat, lng: location.lng });
+    } else {
+      setDestinationCoords({ lat: location.lat, lng: location.lng });
+    }
   };
 
   const handleNextStep = () => {
@@ -377,13 +386,12 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Adresse de départ
           </label>
-          <Input
-            leftIcon={<MapPin size={18} className="text-green-500" />}
-            type="text"
+          <AddressInput
             placeholder="D'où partez-vous ?"
             value={formData.pickup}
-            onChange={(e) => setFormData(prev => ({ ...prev, pickup: e.target.value }))}
-            fullWidth
+            onChange={(value) => setFormData(prev => ({ ...prev, pickup: value }))}
+            onPlaceSelect={(placeData) => handleLocationSelect('pickup', placeData)}
+            icon={<MapPin size={18} className="text-green-500" />}
           />
           
           {savedLocations.length > 0 && (
@@ -408,13 +416,12 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Destination
           </label>
-          <Input
-            leftIcon={<MapPin size={18} className="text-red-500" />}
-            type="text"
+          <AddressInput
             placeholder="Où allez-vous ?"
             value={formData.destination}
-            onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
-            fullWidth
+            onChange={(value) => setFormData(prev => ({ ...prev, destination: value }))}
+            onPlaceSelect={(placeData) => handleLocationSelect('destination', placeData)}
+            icon={<MapPin size={18} className="text-red-500" />}
           />
           
           {savedLocations.length > 0 && (
