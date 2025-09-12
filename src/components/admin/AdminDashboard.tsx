@@ -203,8 +203,7 @@ const AdminDashboard: React.FC = () => {
         .from('bookings')
         .select(`
           *,
-          users (email, name),
-          drivers (name)
+          users (email, name)
         `)
         .order('created_at', { ascending: false });
 
@@ -214,7 +213,7 @@ const AdminDashboard: React.FC = () => {
         ...booking,
         booking_reference: booking.booking_reference || `REF-${booking.id.slice(-8)}`,
         user_email: booking.users?.email,
-        driver_name: booking.drivers?.name
+        driver_name: null // Will be populated separately if needed
       }));
 
       setBookings(formattedBookings);
