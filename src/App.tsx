@@ -56,7 +56,7 @@ function AppContent() {
       case 'book':
         return <BookRide onRideBooked={bookRide} />;
       case 'rates':
-        return <BookRide onRideBooked={bookRide} />;
+        return <Services />;
       case 'history':
         return <RideHistory />;
       case 'profile':
