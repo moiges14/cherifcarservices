@@ -126,8 +126,8 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
     if (user) {
       loadSavedLocations();
       loadUserProfile();
-      loadGoogleMaps();
     }
+    loadGoogleMaps();
   }, [user]);
 
   useEffect(() => {
@@ -137,6 +137,11 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
   }, [formData.pickup, formData.destination, selectedOption, googleMaps]);
 
   const loadGoogleMaps = async () => {
+    if (window.google && window.google.maps) {
+      setGoogleMaps(window.google.maps);
+      return;
+    }
+
     try {
       const loader = new Loader({
         apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
@@ -148,6 +153,8 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
       setGoogleMaps(google.maps);
     } catch (error) {
       console.error('Erreur lors du chargement de Google Maps:', error);
+      // Fallback : utiliser des calculs approximatifs
+      setGoogleMaps(null);
     }
   };
 
@@ -391,7 +398,17 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
             placeholder="D'où partez-vous ?"
             value={formData.pickup}
             onChange={(value) => setFormData(prev => ({ ...prev, pickup: value }))}
-            onPlaceSelect={(placeData) => handleLocationSelect('pickup', placeData)}
+            onPlaceSelect={(place) => {
+              if (place && place.geometry && place.geometry.location) {
+                handleLocationSelect('pickup', {
+                  address: place.formatted_address || place.name || formData.pickup,
+                  lat: place.geometry.location.lat(),
+                  lng: place.geometry.location.lng(),
+                  place_id: place.place_id,
+                  name: place.name
+                });
+              }
+            }}
             icon={<MapPin size={18} className="text-green-500" />}
           />
           
@@ -421,7 +438,17 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
             placeholder="Où allez-vous ?"
             value={formData.destination}
             onChange={(value) => setFormData(prev => ({ ...prev, destination: value }))}
-            onPlaceSelect={(placeData) => handleLocationSelect('destination', placeData)}
+            onPlaceSelect={(place) => {
+              if (place && place.geometry && place.geometry.location) {
+                handleLocationSelect('destination', {
+                  address: place.formatted_address || place.name || formData.destination,
+                  lat: place.geometry.location.lat(),
+                  lng: place.geometry.location.lng(),
+                  place_id: place.place_id,
+                  name: place.name
+                });
+              }
+            }}
             icon={<MapPin size={18} className="text-red-500" />}
           />
           

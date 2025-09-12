@@ -43,14 +43,33 @@ const AddressInput: React.FC<AddressInputProps> = ({
 
   useEffect(() => {
     // Initialiser les services Google Places
-    if (window.google && window.google.maps && window.google.maps.places) {
-      autocompleteService.current = new google.maps.places.AutocompleteService();
-      
-      // Créer un div temporaire pour PlacesService
-      const mapDiv = document.createElement('div');
-      const map = new google.maps.Map(mapDiv);
-      placesService.current = new google.maps.places.PlacesService(map);
-    }
+    const initializeGooglePlaces = async () => {
+      try {
+        // Charger Google Maps si pas encore chargé
+        if (!window.google) {
+          const { Loader } = await import('@googlemaps/js-api-loader');
+          const loader = new Loader({
+            apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+            version: 'weekly',
+            libraries: ['places']
+          });
+          await loader.load();
+        }
+
+        if (window.google && window.google.maps && window.google.maps.places) {
+          autocompleteService.current = new google.maps.places.AutocompleteService();
+          
+          // Créer un div temporaire pour PlacesService
+          const mapDiv = document.createElement('div');
+          const map = new google.maps.Map(mapDiv);
+          placesService.current = new google.maps.places.PlacesService(map);
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'initialisation de Google Places:', error);
+      }
+    };
+
+    initializeGooglePlaces();
 
     // Charger les adresses récentes depuis localStorage
     const saved = localStorage.getItem('recentAddresses');
@@ -74,7 +93,13 @@ const AddressInput: React.FC<AddressInputProps> = ({
   }, []);
 
   const searchPlaces = async (query: string) => {
-    if (!autocompleteService.current || query.length < 3) {
+    if (!autocompleteService.current) {
+      console.warn('Service Google Places non initialisé');
+      setSuggestions([]);
+      return;
+    }
+
+    if (query.length < 3) {
       setSuggestions([]);
       return;
     }
@@ -92,6 +117,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
         if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
           setSuggestions(predictions);
         } else {
+          console.warn('Erreur Google Places:', status);
           setSuggestions([]);
         }
         setLoading(false);
@@ -117,7 +143,20 @@ const AddressInput: React.FC<AddressInputProps> = ({
   };
 
   const handleSuggestionClick = async (suggestion: Suggestion) => {
-    if (!placesService.current) return;
+    if (!placesService.current) {
+      console.warn('Service Google Places non initialisé pour les détails');
+      // Fallback : utiliser juste l'adresse de la suggestion
+      const address = suggestion.description;
+      onChange(address, {
+        address,
+        lat: 48.8566, // Coordonnées par défaut (Paris)
+        lng: 2.3522,
+        place_id: suggestion.place_id,
+        name: suggestion.structured_formatting.main_text
+      });
+      setShowSuggestions(false);
+      return;
+    }
 
     setLoading(true);
     try {
@@ -144,6 +183,7 @@ const AddressInput: React.FC<AddressInputProps> = ({
             onPlaceSelect(place);
           }
         }
+          console.warn('Erreur lors de la récupération des détails:', status);
         setShowSuggestions(false);
         setLoading(false);
       });
