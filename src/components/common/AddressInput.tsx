@@ -44,7 +44,6 @@ const AddressInput: React.FC<AddressInputProps> = ({
         autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
           componentRestrictions: { country: 'fr' },
           fields: ['formatted_address', 'geometry', 'name', 'place_id'],
-          types: ['address', 'establishment', 'geocode']
         });
 
         // Écouter les sélections
