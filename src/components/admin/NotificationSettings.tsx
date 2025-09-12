@@ -6,7 +6,7 @@ import Button from '../common/Button';
 
 const NotificationSettings: React.FC = () => {
   const { settings, updateSettings, setupPushNotifications } = useNotifications();
-  const [testingEmail, setTestingEmail] = useState(true);moiges14@hotmail.com
+  const [testingEmail, setTestingEmail] = useState(false);
   const [testingSMS, setTestingSMS] = useState(true);
 
   const handleToggle = (setting: keyof typeof settings) => {
