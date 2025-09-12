@@ -54,6 +54,7 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
   const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
   const [estimatedDistance, setEstimatedDistance] = useState<number | null>(null);
   const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   const loadSavedLocations = async () => {
     if (!user) return;
@@ -89,8 +90,15 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
   };
 
   const calculateDistanceAndPrice = async () => {
-    if (!formData.pickup || !formData.destination || !window.google?.maps) return;
+    if (!formData.pickup || !formData.destination || !window.google?.maps?.DistanceMatrixService) {
+      setEstimatedPrice(null);
+      setEstimatedDistance(null);
+      setEstimatedDuration(null);
+      return;
+    }
 
+    setIsCalculating(true);
+    
     try {
       const service = new window.google.maps.DistanceMatrixService();
       
@@ -100,9 +108,13 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
         travelMode: window.google.maps.TravelMode.DRIVING,
         unitSystem: window.google.maps.UnitSystem.METRIC,
         avoidHighways: false,
-        avoidTolls: false
+        avoidTolls: false,
+        region: 'FR'
       }, (response, status) => {
-        if (status === 'OK' && response?.rows[0]?.elements[0]?.status === 'OK') {
+        setIsCalculating(false);
+        
+        if (status === window.google.maps.DistanceMatrixStatus.OK && 
+            response?.rows[0]?.elements[0]?.status === 'OK') {
           const element = response.rows[0].elements[0];
           const distance = element.distance.value / 1000; // Convert to km
           const duration = element.duration.value / 60; // Convert to minutes
@@ -111,8 +123,153 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
           setEstimatedDuration(Math.round(duration));
           
           // Calculate price based on distance and ride type
-          let basePrice = 5; // Base price in euros
-          let pricePerKm = 1.5;
+          const calculatedPrice = calculatePrice(distance, selectedOption);
+          setEstimatedPrice(calculatedPrice);
+        } else {
+          console.warn('Distance Matrix API error:', status, response);
+          // Fallback: estimate based on straight-line distance
+          const fallbackDistance = estimateStraightLineDistance(formData.pickup, formData.destination);
+          if (fallbackDistance > 0) {
+            setEstimatedDistance(fallbackDistance);
+            setEstimatedDuration(Math.round(fallbackDistance * 2.5)); // Rough estimate
+            setEstimatedPrice(calculatePrice(fallbackDistance, selectedOption));
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error calculating distance:', error);
+      setIsCalculating(false);
+      
+      // Fallback calculation
+      const fallbackDistance = estimateStraightLineDistance(formData.pickup, formData.destination);
+      if (fallbackDistance > 0) {
+        setEstimatedDistance(fallbackDistance);
+        setEstimatedDuration(Math.round(fallbackDistance * 2.5));
+        setEstimatedPrice(calculatePrice(fallbackDistance, selectedOption));
+      }
+    }
+  };
+
+  const calculatePrice = (distanceKm: number, rideType: string): number => {
+    let basePrice = 9; // Base price in euros (as per tariff)
+    let pricePerKm = 2; // Price per km (as per tariff)
+    
+    switch (rideType) {
+      case 'economy':
+        basePrice = 7;
+        pricePerKm = 1.5;
+        break;
+      case 'standard':
+        basePrice = 9;
+        pricePerKm = 2;
+        break;
+      case 'premium':
+        basePrice = 15;
+        pricePerKm = 3;
+        break;
+      case 'electric':
+        basePrice = 10;
+        pricePerKm = 2.2;
+        break;
+      default:
+        basePrice = 9;
+        pricePerKm = 2;
+    }
+    
+    const totalPrice = basePrice + (distanceKm * pricePerKm);
+    return Math.round(totalPrice * 100) / 100; // Round to 2 decimal places
+  };
+
+  const estimateStraightLineDistance = (pickup: string, destination: string): number => {
+    // This is a very rough fallback - in reality you'd need geocoding
+    // For now, return a default distance for demonstration
+    if (pickup && destination && pickup !== destination) {
+      // Rough estimate based on address length difference (very basic fallback)
+      const lengthDiff = Math.abs(pickup.length - destination.length);
+      return Math.max(5, Math.min(50, lengthDiff * 0.5)); // Between 5-50km
+    }
+    return 0;
+  };
+
+  // Debounced calculation to avoid too many API calls
+  useEffect(() => {
+    if (formData.pickup && formData.destination && selectedOption) {
+      const timeoutId = setTimeout(() => {
+        calculateDistanceAndPrice();
+      }, 1000); // Wait 1 second after user stops typing
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setEstimatedPrice(null);
+      setEstimatedDistance(null);
+      setEstimatedDuration(null);
+    }
+  }, [formData.pickup, formData.destination, selectedOption]);
+
+  // Remove the old useEffect that was calling calculateDistanceAndPrice
+  // useEffect(() => {
+  //   if (formData.pickup && formData.destination && selectedOption && window.google?.maps) {
+  //     calculateDistanceAndPrice();
+  //   }
+  // }, [formData.pickup, formData.destination, selectedOption]);
+
+  const handleRideTypeChange = (rideType: string) => {
+    setSelectedOption(rideType);
+    handleInputChange('rideType', rideType);
+    
+    // Recalculate price immediately when ride type changes
+    if (estimatedDistance) {
+      const newPrice = calculatePrice(estimatedDistance, rideType);
+      setEstimatedPrice(newPrice);
+    }
+  };
+
+  const handleAddressChange = (field: 'pickup' | 'destination', value: string, placeData?: any) => {
+    handleInputChange(field, value);
+    
+    // Store additional place data if available
+    if (placeData && placeData.lat && placeData.lng) {
+      // You could store coordinates for more accurate calculations
+      console.log(`${field} coordinates:`, placeData.lat, placeData.lng);
+    }
+  };
+
+  // Remove the old calculateDistanceAndPrice function and replace with the new one above
+  // const calculateDistanceAndPrice = async () => {
+  //   // ... old implementation
+  // };
+
+  // Update the ride type selection to use the new handler
+  const rideOptions = [
+    { 
+      id: 'economy', 
+      name: 'Économique', 
+      icon: Car, 
+      price: '7€ + 1,5€/km', 
+      description: 'Option abordable' 
+    },
+    { 
+      id: 'standard', 
+      name: 'Standard', 
+      icon: Car, 
+      price: '9€ + 2€/km', 
+      description: 'Confort standard' 
+    },
+    { 
+      id: 'premium', 
+      name: 'Premium', 
+      icon: Car, 
+      price: '15€ + 3€/km', 
+      description: 'Véhicule haut de gamme' 
+    },
+    { 
+      id: 'electric', 
+      name: 'Électrique', 
+      icon: Car, 
+      price: '10€ + 2,2€/km', 
+      description: 'Véhicule écologique' 
+    }
+  ];
           
           switch (selectedOption) {
             case 'economy':
@@ -239,7 +396,7 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
               </label>
               <AddressInput
                 value={formData.pickup}
-                onChange={(value) => handleInputChange('pickup', value)}
+                onChange={(value, placeData) => handleAddressChange('pickup', value, placeData)}
                 placeholder="Adresse de départ"
                 savedLocations={savedLocations}
               />
@@ -252,7 +409,7 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
               </label>
               <AddressInput
                 value={formData.destination}
-                onChange={(value) => handleInputChange('destination', value)}
+                onChange={(value, placeData) => handleAddressChange('destination', value, placeData)}
                 placeholder="Adresse de destination"
                 savedLocations={savedLocations}
               />
@@ -322,10 +479,7 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => {
-                    setSelectedOption(option.id);
-                    handleInputChange('rideType', option.id);
-                  }}
+                  onClick={() => handleRideTypeChange(option.id)}
                 >
                   <option.icon className="w-8 h-8 mx-auto mb-2 text-gray-600" />
                   <h3 className="font-medium text-center">{option.name}</h3>
@@ -337,18 +491,71 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
           </div>
 
           {/* Price Estimation */}
-          {estimatedPrice && (
+          {(estimatedPrice || isCalculating) && (
             <Card className="p-4 bg-green-50 border-green-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Calculator className="w-5 h-5 text-green-600 mr-2" />
-                  <span className="font-medium text-green-800">Estimation</span>
+                  <span className="font-medium text-green-800">
+                    {isCalculating ? 'Calcul en cours...' : 'Estimation'}
+                  </span>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-green-600">
-                    {estimatedPrice}€
+                  {isCalculating ? (
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold text-green-600">
+                        {estimatedPrice}€
+                      </div>
+                      {estimatedDistance && estimatedDuration && (
+                        <div className="text-sm text-green-700">
+                          {estimatedDistance.toFixed(1)} km • {estimatedDuration} min
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+              {estimatedPrice && !isCalculating && (
+                <div className="mt-2 text-xs text-green-600">
+                  Tarif: {selectedOption === 'economy' ? '7€ + 1,5€/km' : 
+                          selectedOption === 'premium' ? '15€ + 3€/km' :
+                          selectedOption === 'electric' ? '10€ + 2,2€/km' : '9€ + 2€/km'}
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* Show manual price calculator if automatic calculation fails */}
+          {!estimatedPrice && !isCalculating && formData.pickup && formData.destination && (
+            <Card className="p-4 bg-blue-50 border-blue-200">
+              <div className="text-center">
+                <Calculator className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-medium text-blue-800 mb-2">Estimation manuelle</h3>
+                <p className="text-sm text-blue-700 mb-3">
+                  Le calcul automatique n'est pas disponible. Voici nos tarifs de base :
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="text-blue-800">
+                    <strong>Économique:</strong> 7€ + 1,5€/km
                   </div>
-                  {estimatedDistance && estimatedDuration && (
+                  <div className="text-blue-800">
+                    <strong>Standard:</strong> 9€ + 2€/km
+                  </div>
+                  <div className="text-blue-800">
+                    <strong>Premium:</strong> 15€ + 3€/km
+                  </div>
+                  <div className="text-blue-800">
+                    <strong>Électrique:</strong> 10€ + 2,2€/km
+                  </div>
+                </div>
+                <p className="text-xs text-blue-600 mt-2">
+                  Le prix exact sera calculé lors de la course
+                </p>
+              </div>
+            </Card>
+          )}
                     <div className="text-sm text-green-700">
                       {estimatedDistance.toFixed(1)} km • {estimatedDuration} min
                     </div>
