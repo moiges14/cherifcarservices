@@ -270,29 +270,6 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
       description: 'Véhicule écologique' 
     }
   ];
-          
-          switch (selectedOption) {
-            case 'economy':
-              pricePerKm = 1.2;
-              break;
-            case 'premium':
-              pricePerKm = 2.0;
-              break;
-            case 'electric':
-              pricePerKm = 1.8;
-              break;
-            default:
-              pricePerKm = 1.5;
-          }
-          
-          const totalPrice = basePrice + (distance * pricePerKm);
-          setEstimatedPrice(Math.round(totalPrice * 100) / 100);
-        }
-      });
-    } catch (error) {
-      console.error('Error calculating distance:', error);
-    }
-  };
 
   useEffect(() => {
     if (user) {
@@ -372,13 +349,6 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
     }
   };
 
-  const rideOptions = [
-    { id: 'economy', name: 'Économique', icon: Car, price: '€', description: 'Option abordable' },
-    { id: 'standard', name: 'Standard', icon: Car, price: '€€', description: 'Confort standard' },
-    { id: 'premium', name: 'Premium', icon: Car, price: '€€€', description: 'Véhicule haut de gamme' },
-    { id: 'electric', name: 'Électrique', icon: Car, price: '€€', description: 'Véhicule écologique' }
-  ];
-
   return (
     <div className="max-w-4xl mx-auto p-6">
       <Card className="p-8">
@@ -396,7 +366,7 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
               </label>
               <AddressInput
                 value={formData.pickup}
-                onChange={(value, placeData) => handleAddressChange('pickup', value, placeData)}
+                onChange={(value) => handleInputChange('pickup', value)}
                 placeholder="Adresse de départ"
                 savedLocations={savedLocations}
               />
@@ -409,7 +379,7 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
               </label>
               <AddressInput
                 value={formData.destination}
-                onChange={(value, placeData) => handleAddressChange('destination', value, placeData)}
+                onChange={(value) => handleInputChange('destination', value)}
                 placeholder="Adresse de destination"
                 savedLocations={savedLocations}
               />
@@ -479,7 +449,10 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
                       ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
-                  onClick={() => handleRideTypeChange(option.id)}
+                  onClick={() => {
+                    setSelectedOption(option.id);
+                    handleInputChange('rideType', option.id);
+                  }}
                 >
                   <option.icon className="w-8 h-8 mx-auto mb-2 text-gray-600" />
                   <h3 className="font-medium text-center">{option.name}</h3>
@@ -491,71 +464,18 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
           </div>
 
           {/* Price Estimation */}
-          {(estimatedPrice || isCalculating) && (
+          {estimatedPrice && (
             <Card className="p-4 bg-green-50 border-green-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <Calculator className="w-5 h-5 text-green-600 mr-2" />
-                  <span className="font-medium text-green-800">
-                    {isCalculating ? 'Calcul en cours...' : 'Estimation'}
-                  </span>
+                  <span className="font-medium text-green-800">Estimation</span>
                 </div>
                 <div className="text-right">
-                  {isCalculating ? (
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-                  ) : (
-                    <>
-                      <div className="text-2xl font-bold text-green-600">
-                        {estimatedPrice}€
-                      </div>
-                      {estimatedDistance && estimatedDuration && (
-                        <div className="text-sm text-green-700">
-                          {estimatedDistance.toFixed(1)} km • {estimatedDuration} min
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-              {estimatedPrice && !isCalculating && (
-                <div className="mt-2 text-xs text-green-600">
-                  Tarif: {selectedOption === 'economy' ? '7€ + 1,5€/km' : 
-                          selectedOption === 'premium' ? '15€ + 3€/km' :
-                          selectedOption === 'electric' ? '10€ + 2,2€/km' : '9€ + 2€/km'}
-                </div>
-              )}
-            </Card>
-          )}
-
-          {/* Show manual price calculator if automatic calculation fails */}
-          {!estimatedPrice && !isCalculating && formData.pickup && formData.destination && (
-            <Card className="p-4 bg-blue-50 border-blue-200">
-              <div className="text-center">
-                <Calculator className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-medium text-blue-800 mb-2">Estimation manuelle</h3>
-                <p className="text-sm text-blue-700 mb-3">
-                  Le calcul automatique n'est pas disponible. Voici nos tarifs de base :
-                </p>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div className="text-blue-800">
-                    <strong>Économique:</strong> 7€ + 1,5€/km
+                  <div className="text-2xl font-bold text-green-600">
+                    {estimatedPrice}€
                   </div>
-                  <div className="text-blue-800">
-                    <strong>Standard:</strong> 9€ + 2€/km
-                  </div>
-                  <div className="text-blue-800">
-                    <strong>Premium:</strong> 15€ + 3€/km
-                  </div>
-                  <div className="text-blue-800">
-                    <strong>Électrique:</strong> 10€ + 2,2€/km
-                  </div>
-                </div>
-                <p className="text-xs text-blue-600 mt-2">
-                  Le prix exact sera calculé lors de la course
-                </p>
-              </div>
-            </Card>
-          )}
+                  {estimatedDistance && estimatedDuration && (
                     <div className="text-sm text-green-700">
                       {estimatedDistance.toFixed(1)} km • {estimatedDuration} min
                     </div>
