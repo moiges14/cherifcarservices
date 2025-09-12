@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
+import { useNotifications } from '../../hooks/useNotifications';
 import AddressInput from '../common/AddressInput';
 import Button from '../common/Button';
 import Card from '../common/Card';
@@ -36,23 +37,11 @@ interface UserProfile {
 
 const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
   const { user } = useAuth();
+  const { notifyNewBooking } = useNotifications();
   const [formData, setFormData] = useState<FormData>({
     pickup: '',
     destination: '',
     date: '',
-    time: '',
-    passengers: 1,
-    rideType: 'standard',
-    specialRequests: ''
-  });
-  const [savedLocations, setSavedLocations] = useState<SavedLocation[]>([]);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [selectedOption, setSelectedOption] = useState('standard');
-  const [estimatedPrice, setEstimatedPrice] = useState<number | null>(null);
-  const [estimatedDistance, setEstimatedDistance] = useState<number | null>(null);
-  const [estimatedDuration, setEstimatedDuration] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   const loadSavedLocations = async () => {
     if (!user) return;
     
@@ -147,6 +136,18 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
       calculateDistanceAndPrice();
     }
   }, [formData.pickup, formData.destination, selectedOption]);
+  useEffect(() => {
+    if (user) {
+      loadSavedLocations();
+      loadUserProfile();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (formData.pickup && formData.destination && selectedOption && window.google?.maps) {
+      calculateDistanceAndPrice();
+    }
+  }, [formData.pickup, formData.destination, selectedOption]);
 
   const handleInputChange = (field: keyof FormData, value: string | number) => {
     setFormData(prev => ({
@@ -175,6 +176,8 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
         estimated_price: estimatedPrice,
         estimated_distance: estimatedDistance,
         estimated_duration: estimatedDuration
+        contact_phone: userProfile?.phone || user.email || '',
+        booking_reference: `REF-${Date.now().toString().slice(-8)}`
       };
 
       const { data, error } = await supabase
@@ -185,6 +188,12 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
 
       if (error) throw error;
 
+      // Envoyer les notifications
+      await notifyNewBooking({
+        ...data,
+        user_email: user.email,
+        booking_reference: rideData.booking_reference
+      });
       onRideBooked(data);
       
       // Reset form
