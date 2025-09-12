@@ -127,7 +127,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
       loadSavedLocations();
       loadUserProfile();
     }
-    loadGoogleMaps();
+    initializeGoogleMaps();
   }, [user]);
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
     }
   }, [formData.pickup, formData.destination, selectedOption, googleMaps]);
 
-  const loadGoogleMaps = async () => {
+  const initializeGoogleMaps = async () => {
     if (window.google && window.google.maps) {
       setGoogleMaps(window.google.maps);
       return;
@@ -146,14 +146,15 @@ export default function BookRide({ onRideBooked }: BookRideProps) {
       const loader = new Loader({
         apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
         version: 'weekly',
-        libraries: ['places', 'geometry']
+        libraries: ['places', 'geometry'],
+        language: 'fr',
+        region: 'FR'
       });
 
-      const google = await loader.load();
-      setGoogleMaps(google.maps);
+      await loader.load();
+      setGoogleMaps(window.google.maps);
     } catch (error) {
       console.error('Erreur lors du chargement de Google Maps:', error);
-      // Fallback : utiliser des calculs approximatifs
       setGoogleMaps(null);
     }
   };
