@@ -1,8 +1,12 @@
 import React from 'react';
+import { useState } from 'react';
 import Card from '../common/Card';
 import { Car, Plane, Clock, Star, MapPin, Shield, Euro, Calculator } from 'lucide-react';
 
 const Services: React.FC = () => {
+  const [distance, setDistance] = useState<number>(0);
+  const [estimatedPrice, setEstimatedPrice] = useState<number>(9);
+
   const rates = [
     {
       id: 'base',
@@ -129,6 +133,18 @@ const Services: React.FC = () => {
     }
   ];
 
+  const calculatePrice = (distanceKm: number) => {
+    const basePrice = 9;
+    const pricePerKm = 2;
+    return basePrice + (distanceKm * pricePerKm);
+  };
+
+  const handleDistanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newDistance = parseFloat(e.target.value) || 0;
+    setDistance(newDistance);
+    setEstimatedPrice(calculatePrice(newDistance));
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
       {/* Section Tarifs */}
@@ -211,26 +227,22 @@ const Services: React.FC = () => {
                 </label>
                 <input
                   type="number"
+                  value={distance || ''}
                   placeholder="Ex: 15"
+                  min="0"
+                  step="0.1"
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  onChange={(e) => {
-                    const distance = parseFloat(e.target.value) || 0;
-                    const total = 9 + (distance * 2);
-                    const resultElement = document.getElementById('price-result');
-                    if (resultElement) {
-                      resultElement.textContent = `${total.toFixed(2)}€`;
-                    }
-                  }}
+                  onChange={handleDistanceChange}
                 />
               </div>
               
               <div className="text-center p-4 bg-emerald-50 rounded-lg">
                 <div className="text-sm text-gray-600 mb-1">Prix estimé</div>
-                <div id="price-result" className="text-2xl font-bold text-emerald-600">
-                  9.00€
+                <div className="text-2xl font-bold text-emerald-600">
+                  {estimatedPrice.toFixed(2)}€
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  (9€ de base + distance × 2€/km)
+                  (9€ de base + {distance.toFixed(1)}km × 2€/km)
                 </div>
               </div>
             </div>
