@@ -298,6 +298,11 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
     setIsLoading(true);
     
     try {
+      // Vérifier que les champs requis sont remplis
+      if (!formData.pickup || !formData.destination || !formData.date || !formData.time) {
+        throw new Error('Veuillez remplir tous les champs obligatoires');
+      }
+
       const rideData = {
         user_id: user.id,
         pickup: formData.pickup,
@@ -311,9 +316,10 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
         estimated_price: estimatedPrice,
         estimated_distance: estimatedDistance,
         estimated_duration: estimatedDuration,
-        contact_phone: userProfile?.phone || user.email || '',
-        booking_reference: `REF-${Date.now().toString().slice(-8)}`
+        contact_phone: userProfile?.phone || ''
       };
+
+      console.log('Tentative de réservation avec les données:', rideData);
 
       const { data, error } = await supabase
         .from('bookings')
@@ -321,15 +327,30 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur Supabase:', error);
+        throw new Error(`Erreur de réservation: ${error.message}`);
+      }
+
+      console.log('Réservation créée avec succès:', data);
+
+      // Créer la référence de réservation après insertion
+      const bookingWithRef = {
+        ...data,
+        booking_reference: `REF-${data.id.slice(-8)}`,
+        user_email: user.email
+      };
 
       // Envoyer les notifications
-      await notifyNewBooking({
-        ...data,
-        user_email: user.email,
-        booking_reference: rideData.booking_reference
-      });
-      onRideBooked(data);
+      try {
+        await notifyNewBooking(bookingWithRef);
+      } catch (notifError) {
+        console.warn('Erreur lors de l\'envoi des notifications:', notifError);
+        // Ne pas bloquer la réservation si les notifications échouent
+      }
+
+      // Appeler le callback avec les données complètes
+      onRideBooked(bookingWithRef);
       
       // Reset form
       setFormData({
@@ -341,9 +362,18 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
         rideType: 'standard',
         specialRequests: ''
       });
+
+      // Réinitialiser les estimations
+      setEstimatedPrice(null);
+      setEstimatedDistance(null);
+      setEstimatedDuration(null);
+
+      // Message de succès
+      alert('Réservation créée avec succès ! Vous recevrez une confirmation par email.');
       
     } catch (error) {
       console.error('Error booking ride:', error);
+      alert(`Erreur lors de la réservation: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
       setIsLoading(false);
     }
@@ -502,11 +532,17 @@ const BookRide: React.FC<BookRideProps> = ({ onRideBooked }) => {
           {/* Submit Button */}
           <Button
             type="submit"
-            disabled={isLoading || !formData.pickup || !formData.destination || !formData.date || !formData.time}
+            disabled={isLoading || !formData.pickup || !formData.destination || !formData.date || !formData.time || !user}
             className="w-full py-3 text-lg"
           >
-            {isLoading ? 'Réservation en cours...' : 'Réserver maintenant'}
+            {isLoading ? 'Réservation en cours...' : !user ? 'Connexion requise' : 'Réserver maintenant'}
           </Button>
+
+          {!user && (
+            <p className="text-center text-sm text-gray-600 mt-2">
+              Vous devez être connecté pour effectuer une réservation
+            </p>
+          )}
         </form>
       </Card>
     </div>
