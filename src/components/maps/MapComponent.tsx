@@ -1,7 +1,45 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
 import { Location } from '../../types';
 import { AlertCircle, MapPin } from 'lucide-react';
+
+// Global promise to ensure Google Maps is loaded only once
+let googleMapsPromise: Promise<void> | null = null;
+
+const loadGoogleMaps = async (): Promise<void> => {
+  if (googleMapsPromise) {
+    return googleMapsPromise;
+  }
+
+  if (window.google?.maps) {
+    return Promise.resolve();
+  }
+
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  
+  if (!apiKey) {
+    throw new Error('Clé API Google Maps manquante. Veuillez configurer VITE_GOOGLE_MAPS_API_KEY.');
+  }
+
+  googleMapsPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,geometry&language=fr&region=FR&callback=initGoogleMaps`;
+    script.async = true;
+    script.defer = true;
+    
+    (window as any).initGoogleMaps = () => {
+      delete (window as any).initGoogleMaps;
+      resolve();
+    };
+    
+    script.onerror = () => {
+      reject(new Error('Erreur lors du chargement de Google Maps'));
+    };
+    
+    document.head.appendChild(script);
+  });
+
+  return googleMapsPromise;
+};
 
 interface MapComponentProps {
   center?: { lat: number, lng: number };
@@ -53,22 +91,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
   }, [map, showRoute, pickup, destination, markers]);
 
   const initializeMap = async () => {
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-    
-    if (!apiKey) {
-      setMapError('Clé API Google Maps manquante. Veuillez configurer VITE_GOOGLE_MAPS_API_KEY.');
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const loader = new Loader({
-        apiKey,
-        version: 'weekly',
-        libraries: ['places', 'geometry']
-      });
-
-      await loader.load();
+      await loadGoogleMaps();
 
       if (!mapRef.current) return;
 

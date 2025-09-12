@@ -33,20 +33,18 @@ const AddressInput: React.FC<AddressInputProps> = ({
       setRecentAddresses(JSON.parse(saved));
     }
 
-    // Initialiser Google Places Autocomplete
-    const initializeAutocomplete = () => {
+    // Attendre que Google Maps soit disponible et initialiser Autocomplete
+    const checkAndInitialize = () => {
       if (!inputRef.current || !window.google?.maps?.places) {
         return;
       }
 
       try {
-        // Créer l'instance Autocomplete
         autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
           componentRestrictions: { country: 'fr' },
           fields: ['formatted_address', 'geometry', 'name', 'place_id'],
         });
 
-        // Écouter les sélections
         autocompleteRef.current.addListener('place_changed', () => {
           const place = autocompleteRef.current?.getPlace();
           
@@ -74,24 +72,20 @@ const AddressInput: React.FC<AddressInputProps> = ({
       }
     };
 
-    // Attendre que Google Maps soit chargé
     if (window.google?.maps?.places) {
-      initializeAutocomplete();
+      checkAndInitialize();
     } else {
-      // Écouter l'événement de chargement de Google Maps
       const checkGoogleMaps = setInterval(() => {
         if (window.google?.maps?.places) {
-          initializeAutocomplete();
+          checkAndInitialize();
           clearInterval(checkGoogleMaps);
         }
       }, 100);
 
-      // Nettoyer l'intervalle après 10 secondes
       setTimeout(() => clearInterval(checkGoogleMaps), 10000);
     }
 
     return () => {
-      // Nettoyer les listeners
       if (autocompleteRef.current) {
         google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
