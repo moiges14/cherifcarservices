@@ -48,6 +48,11 @@ export const useNotifications = () => {
     bookingData?: any
   ) => {
     try {
+      if (!import.meta.env.VITE_SUPABASE_URL) {
+        console.warn('Supabase not configured, skipping email notification');
+        return;
+      }
+
       const { error } = await supabase.functions.invoke('send-email', {
         body: {
           to,
@@ -60,7 +65,9 @@ export const useNotifications = () => {
       if (error) throw error;
       console.log('Email notification sent');
     } catch (error) {
-      console.error('Error sending email notification:', error);
+      console.warn('Email notification failed:', error);
+      // Don't throw error to prevent blocking the booking process
+      return null;
     }
   };
 
