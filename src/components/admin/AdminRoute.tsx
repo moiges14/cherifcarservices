@@ -24,9 +24,11 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
           .from('admin_users')
           .select('id')
           .eq('email', user.email)
-          .single();
+          .maybeSingle();
 
-        if (error) throw error;
+        if (error && error.code !== 'PGRST116') {
+          throw error;
+        }
         setIsAdmin(!!data);
       } catch (err) {
         console.error('Error checking admin status:', err);

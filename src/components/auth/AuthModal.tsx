@@ -53,7 +53,14 @@ export default function AuthModal({ isOpen, onClose, mode, onModeChange }: AuthM
       }
       onClose();
     } catch (error: any) {
-      setError(error.message);
+      // Handle specific error cases
+      if (error.message.includes('User already registered')) {
+        setError('Un compte existe déjà avec cette adresse email. Veuillez vous connecter.');
+      } else if (error.message.includes('Invalid login credentials')) {
+        setError('Email ou mot de passe incorrect.');
+      } else {
+        setError(error.message);
+      }
     } finally {
       setLoading(false);
     }
